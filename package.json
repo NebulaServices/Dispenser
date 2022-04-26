@@ -1,0 +1,28 @@
+{
+  "name": "proxy-dispenser",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/builders": "^0.13.0",
+    "@discordjs/rest": "^0.4.1",
+    "@replit/database": "^2.0.1",
+    "cross-fetch": "^3.1.5",
+    "discord-api-types": "^0.31.2",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "easydb-io": "^0.0.3",
+    "jsdom": "^19.0.0",
+    "node-fetch": "^3.2.3",
+    "whatwg-fetch": "^3.6.2"
+  },
+  "devDependencies": {
+    "node": "^17.7.2"
+  },
+  "description": ""
+}
