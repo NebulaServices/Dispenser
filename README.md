@@ -64,14 +64,8 @@ To run this project, you will need to add the following environment variables to
 `bot_owner` - Whoever owns the bot (can be multiple people)
 
 
-## Authors
-
-- [@deopdeop](https://www.github.com/deopdeop)
-- [@GreenyDEV](https://www.github.com/GreenyDEV)
-- [@SmartCoder3000](https://www.github.com/SmartCoder3000)
-
-
 ## License
 
 [AGPL V3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
+This is a product of Nebula Services | Copyright Nebula Services 2022
