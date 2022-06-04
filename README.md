@@ -68,4 +68,6 @@ To run this project, you will need to add the following environment variables to
 
 [AGPL V3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-This is a product of Nebula Services | Copyright Nebula Services 2022
+Dispenser  is a product of Nebula Services | Copyright Nebula Services 2022
+Copyright Questions ----> accounts-management@nebula.bio
+Need Help? Open a ticket -> https://discord.nebula.bio
