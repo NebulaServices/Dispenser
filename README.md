@@ -1,12 +1,4 @@
-
-![Logo](https://media.discordapp.net/attachments/967579485245427772/967593271264170044/33d.png?width=1426&height=1069)
-
-
-
-
-A simple proxy distribution bot with many features
-
-
+DISPENSER UNDERGOING A REWRITE. 
 
 ## Features
 
