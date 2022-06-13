@@ -1,34 +1,37 @@
-const Database = require('@replit/database');
-
-const db = new Database();
-
-const owners = ['745058406083198994', '366312087317774336', '366312087317774336'];
-
-const { SlashCommandBuilder } = require('@discordjs/builders');
-
+const { SlashCommandBuilder } = require('@discordjs/builders')
+const { Domains } = require('../db')
 module.exports = {
-  data:
-    new SlashCommandBuilder()
-      .setName('add')
-      .setDescription('Adds a new domain')
-      .addStringOption(option =>
-        option
-          .setName('domain')
-          .setDescription('Domain to add')
-          .setRequired(true)),
-  async handle(interaction) {
-    const domain = interaction.options.getString('domain');
+    data: new SlashCommandBuilder()
+        .setName('add')
+        .setDescription('Add a domain to the database')
+        .addStringOption(option => option.setName('domain').setDescription('The domain to add')),
+    ownerOnly: true,
 
-  	if (owners.includes(interaction.user.id)) {
-      db.get('domain').then(value => {
-        if (value === null)
-          value = [];
-        
-        value[value.length] = domain;
-        
-        db.set('domain', value);
-      });
-      await interaction.reply({ content: `Added ${domain}`, ephemeral: true });
+    async execute(interaction, client) {
+
+
+        const domainName = interaction.options.getString('domain');
+        try {
+            const domain = await Domains.findOne({
+                where: {
+                    name: domainName
+                }
+            })
+            if (domain) return interaction.reply('That domain already exists!')
+            await Domains.create({
+                name: domainName
+            })
+
+            console.log(client.colors.info('[DB]'), `Domain ${domainName} added to db by ${interaction.user.tag}`)
+            return interaction.reply({ content: `Domain ${domainName} added`, ephemeral: true })
+        }
+        catch (error) {
+            if (error.name === 'SequelizeUniqueConstraintError') {
+                return interaction.reply('That domain has already been added!')
+            }
+            console.log(client.colors.error('[DB]'), "An error occurred while adding a domain to the database: " + client.colors.error(error))
+            return interaction.reply('An unknown error occurred. Check the log!')
+
+        }
     }
-  }
-};
+}

@@ -1,66 +1,38 @@
-# DISPENSER UNDERGOING A REWRITE. 
+# Dispenser
 
 ## Features
 
-- Completely free to use
-- Customizable 'remaining URLS' 
-- Easy setup 
-- Multiple self hosting options
+- Easy administration
+- Domain reporting
+- Easy configuration
+- Fast
 
 
 ## Installation
 
-Install my-project with npm
-
+Clone the repository and install dependencies
 ```bash
-git clone https://github.com/NebulaServices/Dispenser
-npm install
+git clone https://github.com/NebulaServices/Dispenser.git
+cd Dispenser
+npm i
+mv config-example.json config.json
 ```
+Fill out the newly created `config.json` to your needs.
 
-
-## Run Locally
-
-Clone the project
-
+Starting the bot
 ```bash
-  git clone https://github.com/NebulaServices/Dispenser
+npm start
 ```
-
-Go to the project directory
-
-```bash
-  cd my-project
-```
-
-Install dependencies
-
-```bash
-  npm install
-```
-Set the bot token and change the owner ID to your ID in the `.env ` file
-
-go to the project directory and start the bot
-
-```bash
-  cd 
-  node index.js
-```
-
-
-## Environment Variables
-
-To run this project, you will need to add the following environment variables to your .env file
-
-`token` - Active bot token (Required)
-
-`bot_owner` - Whoever owns the bot (can be multiple people)
-
 
 ## License
 
 [AGPL V3](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-Dispenser  is a product of Nebula Services | Copyright Nebula Services 2022
+## Credits
+
+Written by Phene and illusions for Nebula Services
+
+Dispenser is a product of Nebula Services | Copyright Nebula Services 2022
 <br>
 Copyright Questions ----> accounts-management@nebula.bio
 <br>

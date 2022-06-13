@@ -1,20 +1,21 @@
-const Database = require('@replit/database');
-
-const db = new Database();
-
-const owners = ['745058406083198994', '366312087317774336', '366312087317774336'];
-
-const { SlashCommandBuilder } = require('@discordjs/builders');
-
+const {SlashCommandBuilder} = require('@discordjs/builders')
+const {Users} = require('../db')
 module.exports = {
-  data:
-    new SlashCommandBuilder()
-      .setName('clear')
-      .setDescription('Resets the database'),
-  async handle(interaction) {
-  	if (owners.includes(interaction.user.id)) {
-      db.empty();
-      await interaction.reply({ content: 'Done', ephemeral: true });
+    data: new SlashCommandBuilder()
+    .setName('reset')
+    .setDescription('Reset ALL USERS'),
+    ownerOnly: true,
+    async execute(interaction){
+        try{
+            Users.destroy({
+                where: {}
+            })    
+            return interaction.reply('All users have been reset.')
+        }
+        catch(err){
+            interaction.reply('Something went wrong. Check the log!')
+            console.log(client.colors.error(err))
+        }
+        
     }
-  }
-};
+}

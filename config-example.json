@@ -1,0 +1,11 @@
+{
+    "token": "The bot token",
+    "clientID": "The bot's ID",
+    "guildID": "The ID of the server you are deploying to",
+    "ownerID": [
+      "An array of owner user IDs, separated by commas"
+    ],
+    "embedfooterText": "Embed footer text",
+    "reportWebhook": "The webhook URL for reporting domains"
+  }
+  
