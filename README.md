@@ -7,6 +7,10 @@
 - Easy configuration
 - Fast
 
+## Coming soon
+- Prevent user from getting the same domain twice
+- pagination for viewing user db
+- and more!
 
 ## Installation
 
