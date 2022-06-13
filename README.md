@@ -34,7 +34,7 @@ npm start
 
 ## Credits
 
-Written by Phene and illusions for Nebula Services
+Written by [Phene](https://github.com/joebobbio) and [illusions](https://github.com/illusionTBA) for Nebula Services
 
 Dispenser is a product of Nebula Services | Copyright Nebula Services 2022
 <br>
