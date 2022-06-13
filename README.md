@@ -13,13 +13,42 @@
 - and more!
 
 ## Commands 
-| Command | Description                                        | Usage                                        |
-|---------|----------------------------------------------------|----------------------------------------------|
-| /add    | Add a link to the Database                         | /add example.com <-- do not include https:// |
-| /remove | Remove a link from the Database                    | /remove example.com                          |
-| /panel  | Creates a panel of buttons to click for the links! | /panel                                       |
-| /list   | Lists all domains stored in the Database           | /list                                        |
-| /reset  | Resets all users in the database                   | /reset                                       |
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/add</td>
+<td>Add a link to the Database</td>
+<td>/add example.com &lt;-- do not include https://</td>
+</tr>
+<tr>
+<td>/remove</td>
+<td>Remove a link from the Database</td>
+<td>/remove example.com</td>
+</tr>
+<tr>
+<td>/panel</td>
+<td>Creates a panel of buttons to click for the links!</td>
+<td>/panel</td>
+</tr>
+<tr>
+<td>/list</td>
+<td>Lists all domains stored in the Database</td>
+<td>/list</td>
+</tr>
+<tr>
+<td>/reset</td>
+<td>Resets all users in the database</td>
+<td>/reset</td>
+</tr>
+</tbody>
+</table>
 
 ## Installation
 
