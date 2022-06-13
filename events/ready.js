@@ -6,7 +6,7 @@ module.exports = {
     async execute(client) {
 
 
-        client.user.setActivity("nebula dispenser ", {
+        client.user.setActivity(client.config.status, {
             type: "WATCHING",
             name: "work"
         });

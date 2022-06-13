@@ -6,6 +6,9 @@
       "An array of owner user IDs, separated by commas"
     ],
     "embedfooterText": "Embed footer text",
-    "reportWebhook": "The webhook URL for reporting domains"
+    "reportWebhook": "The webhook URL for reporting domains",
+    "reportUsername": "The username to use for the webhook",
+    "reportAvatar": "The avatar URL to use for the webhook",
+    "status": "The custom status displayed on the bot profile"
   }
   

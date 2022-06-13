@@ -14,12 +14,12 @@ module.exports = {
 
         const row = new MessageActionRow().addComponents(
             new MessageButton()
-                .setLabel("🪐 - Nebula")
+                .setLabel("🪐 Nebula")
                 .setCustomId("neb-btn")
                 .setStyle("PRIMARY")
                 .setDisabled(false),
             new MessageButton()
-                .setLabel("⚠️ - Report")
+                .setLabel("⚠️ Report")
                 .setCustomId("report-btn")
                 .setStyle("DANGER")
                 .setDisabled(false),

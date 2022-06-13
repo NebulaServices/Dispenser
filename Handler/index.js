@@ -21,7 +21,7 @@ const dispense = async (client, interaction) => {
     const usage = user.usage_count;
 
     // Checking if the users usage count is greater or equal to 3
-    if (usage >= 3) return interaction.reply({ content: 'You\'ve already used your 3 requests for the month. Try again next month.' })
+    if (usage >= 3) return interaction.reply({ content: 'You\'ve already used your 3 requests for the month. Try again next month.', ephemeral: true })
 
     // There is probably a better way to do this, but this is all im doin rn
     const domainList = await Domains.findAll({ attributes: ['name'] })
@@ -93,7 +93,7 @@ const extractModalData = async (interaction, client) => {
         return interaction.reply({ content: 'Please enter a valid domain!', ephemeral: true })
     }
     if (!blockers.includes(blocker)) {
-        return interaction.reply({ content: `Please enter a valid filter!\nValid filters: \`${blockers}\`.\nIf your filter is not listed, create a ticket in <#982736449491333140>.`, ephemeral: true })
+        return interaction.reply({ content: `Please enter a valid filter!\nValid filters: \`${blockers}\`.\nIf your filter is not listed, create a ticket or contact a staff member.`, ephemeral: true })
     }
 
     const reportEmbed = new client.Discord.MessageEmbed()
@@ -101,13 +101,13 @@ const extractModalData = async (interaction, client) => {
         .setTitle('Domain Reported')
         .setDescription(`Domain \`${domain}\` has been reported by ${interaction.user.tag}`)
         .addField('Domain', `${domain}`)
-        .addField('Blocker', `${blocker}`)
+        .addField('Filter', `${blocker}`)
         .setFooter({ text: `ID: ${interaction.user.id}` });
 
     try {
         webhookClient.send({
-            username: 'Nebula Report',
-            avatarURL: 'https://cdn.discordapp.com/avatars/983107952393199697/07488bb2f9d17b3651bbf2fc52a700f8.webp?size=80',
+            username: client.config.reportUsername,
+            avatarURL: client.config.reportAvatar,
             embeds: [reportEmbed],
         });
         await interaction.reply({ content: 'Your report has been sent!', ephemeral: true })
