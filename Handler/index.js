@@ -84,7 +84,7 @@ const extractModalData = async (interaction, client) => {
     const webhookClient = new WebhookClient({ url: webhookurl })
     const domain = interaction.fields.getTextInputValue('domainInput')
     const blocker = interaction.fields.getTextInputValue('blockerInput').toLowerCase()
-    const blockers = ["lightspeed", "ls", "light speed", "goguardian", "gg", "iboss", "ib", "content keeper", "ck", "securly"]
+    const blockers = ["lightspeed", "ls", "light speed", "goguardian", "gg", "iboss", "ib", "content keeper", "ck", "securly", "cisco"]
     if (!domain || !blocker) {
         return interaction.reply({ content: 'Please fill out all fields!', ephemeral: true })
     }
