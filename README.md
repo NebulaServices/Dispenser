@@ -52,19 +52,7 @@
 
 ## Installation
 
-Clone the repository and install dependencies
-```bash
-git clone https://github.com/NebulaServices/Dispenser.git
-cd Dispenser
-npm i
-mv config-example.json config.json
-```
-Fill out the newly created `config.json` to your needs.
-
-Starting the bot
-```bash
-npm start
-```
+Installation instructions can be found on the [wiki](https://github.com/NebulaServices/Dispenser/wiki/Hosting-for-yourself).
 
 ## License
 
