@@ -70,9 +70,15 @@ const modalHandler = async (interaction, client) => {
         .setLabel("The filter you have")
         .setStyle('SHORT');
 
+    const ReasonText = new TextInputComponent()
+        .setCustomId('reasonInput')
+        .setLabel("The block reason")
+        .setStyle('SHORT');
+
     const domainRow = new MessageActionRow().addComponents(domainText);
     const blockerRow = new MessageActionRow().addComponents(blockerText);
-    modal.addComponents(domainRow, blockerRow);
+    const reasonRow = new MessageActionRow().addComponents(ReasonText);
+    modal.addComponents(domainRow, blockerRow, reasonRow);
     await interaction.showModal(modal);
 
 }
@@ -84,8 +90,9 @@ const extractModalData = async (interaction, client) => {
     const webhookClient = new WebhookClient({ url: webhookurl })
     const domain = interaction.fields.getTextInputValue('domainInput')
     const blocker = interaction.fields.getTextInputValue('blockerInput').toLowerCase()
+    const reason = interaction.fields.getTextInputValue('reasonInput').toLowerCase()
     const blockers = ["lightspeed", "ls", "light speed", "goguardian", "gg", "iboss", "ib", "content keeper", "ck", "securly", "cisco"]
-    if (!domain || !blocker) {
+    if (!domain || !blocker || !reason) {
         return interaction.reply({ content: 'Please fill out all fields!', ephemeral: true })
     }
     // check if the domain is valid with regex
@@ -102,6 +109,7 @@ const extractModalData = async (interaction, client) => {
         .setDescription(`Domain \`${domain}\` has been reported by ${interaction.user.tag}`)
         .addField('Domain', `${domain}`)
         .addField('Filter', `${blocker}`)
+        .addField('Reason', `${reason}`)
         .setFooter({ text: `ID: ${interaction.user.id}` });
 
     try {
