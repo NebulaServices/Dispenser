@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { Client, Collection, Intents } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -9,7 +10,7 @@ const { loadEvents, loadCommands } = require('./Handler');
 
 // global sexy variables
 module.exports = client;
-client.config = require('./config.json');
+client.config = process.env;
 client.Discord = Discord;
 client.commands = new Collection();
 client.colors = colors;
