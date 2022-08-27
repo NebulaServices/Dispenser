@@ -43,9 +43,14 @@
 <td>/list</td>
 </tr>
 <tr>
-<td>/reset</td>
+<td>/reset-all</td>
 <td>Resets all users in the database</td>
 <td>/reset</td>
+</tr>
+<tr>
+<td>/reset</td>
+<td>Reset a user</td>
+<td>/reset [user]</td>
 </tr>
 </tbody>
 </table>
@@ -60,10 +65,10 @@ Installation instructions can be found on the [wiki](https://github.com/NebulaSe
 
 ## Credits
 
-Written by [Phene](https://github.com/joebobbio) and [illusions](https://github.com/illusionTBA) for Nebula Services
+See our [contributors](https://github.com/NebulaServices/Dispenser/graphs/contributors)
 
 Dispenser is a product of Nebula Services | Copyright Nebula Services 2022
 <br>
-Copyright Questions ----> accounts-management@nebula.bio
+Copyright questions ----> accounts-management@nebula.bio
 <br>
-Need Help? Open a ticket -> https://discord.nebula.bio
+Need help or want to contribute? Open a ticket -> https://discord.nebula.bio
