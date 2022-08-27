@@ -10,7 +10,7 @@ module.exports = {
             if (!command) return;
 
             if (command.ownerOnly) {
-                if (!client.config.ownerID.includes(interaction.user.id)) {
+                if (!client.config.OWNERID.includes(interaction.user.id)) {
                     return interaction.reply({
                         content: "Access denied.",
                         ephemeral: true,

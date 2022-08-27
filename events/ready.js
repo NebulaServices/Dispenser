@@ -6,7 +6,7 @@ module.exports = {
     async execute(client) {
 
 
-        client.user.setActivity(client.config.status, {
+        client.user.setActivity(client.config.STATUS, {
             type: "WATCHING",
             name: "work"
         });

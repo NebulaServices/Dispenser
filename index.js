@@ -21,4 +21,4 @@ loadEvents(client, path.join(__dirname, 'events'));
 loadCommands(client, path.join(__dirname, 'commands'))
 
 // logging in to bot
-client.login(client.config.token);
+client.login(client.config.TOKEN);
