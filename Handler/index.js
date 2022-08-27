@@ -13,7 +13,8 @@ const dispense = async (client, interaction) => {
                 usage_count: 0
             })
             console.log(client.colors.warn('[DB]'), `User ${interaction.user.tag} added to db`)
-            return interaction.reply({ content: 'You have been added to the database - click the button again.', ephemeral: true })
+            // return interaction.reply({ content: 'You have been added to the database - click the button again.', ephemeral: true })
+            return dispense(client, interaction);
         }
     } catch (err) {
         console.log(client.colors.error(err))
