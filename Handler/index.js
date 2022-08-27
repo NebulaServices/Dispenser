@@ -86,7 +86,7 @@ const modalHandler = async (interaction, client) => {
 
 
 const extractModalData = async (interaction, client) => {
-    const webhookurl = client.config.reportWebhook
+    const webhookurl = client.config.REPORTWEBHOOK
 
     const webhookClient = new WebhookClient({ url: webhookurl })
     const domain = interaction.fields.getTextInputValue('domainInput')
@@ -115,8 +115,8 @@ const extractModalData = async (interaction, client) => {
 
     try {
         webhookClient.send({
-            username: client.config.reportUsername,
-            avatarURL: client.config.reportAvatar,
+            username: client.config.REPORTUSERNAME,
+            avatarURL: client.config.REPORTAVATAR,
             embeds: [reportEmbed],
         });
         await interaction.reply({ content: 'Your report has been sent!', ephemeral: true })

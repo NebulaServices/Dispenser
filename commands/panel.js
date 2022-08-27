@@ -30,7 +30,7 @@ module.exports = {
             .setTitle("Proxy Dispenser")
             .setDescription(`Choose the proxy you want below or report a blocked one.`)
             .setColor("#4000ff")
-            .setFooter({ text: `${client.config.embedfooterText}`, iconURL: `${client.user.displayAvatarURL()}` });
+            .setFooter({ text: `${client.config.EMBEDFOOTERTEXT}`, iconURL: `${client.user.displayAvatarURL()}` });
 
         await interaction.reply({ embeds: [proxyEmbed], components: [row] });
     }
