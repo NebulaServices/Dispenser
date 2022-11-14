@@ -4,7 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('remove')
         .setDescription('remove')
-        .addStringOption(option => option.setName('domain').setDescription('The domain to delete')),
+        .addStringOption(option => option.setName('domain').setDescription('The domain to delete').setRequired(true)),
     ownerOnly: true,
 
     async execute(interaction) {

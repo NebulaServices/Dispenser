@@ -4,7 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('add')
         .setDescription('Add a domain to the database')
-        .addStringOption(option => option.setName('domain').setDescription('The domain to add')),
+        .addStringOption(option => option.setName('domain').setDescription('The domain to add').setRequired(true)),
     ownerOnly: true,
 
     async execute(interaction, client) {

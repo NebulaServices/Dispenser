@@ -1,6 +1,6 @@
 {
   "name": "neb-dispenser",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "Distribute domains to a Discord server",
   "main": "index.js",
   "scripts": {
