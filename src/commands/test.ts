@@ -3,7 +3,7 @@ import { RunCommand } from '../interfaces/Command';
 import Bot from '../classes/Bot';
 
 const run: RunCommand = async (client: Bot, interaction: CommandInteraction): Promise<any> => {
-    await interaction.reply('Pong');
+
 };
 
 

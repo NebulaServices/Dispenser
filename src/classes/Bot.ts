@@ -15,6 +15,7 @@ class Bot extends Client {
     commands: Collection<string, Command> = new Collection();
     events: Collection<string, Event> = new Collection();
     cmdsArray: any[]=[];
+
     async start(): Promise<void> {
         // load cmds
         const commandFiles: string[] = readdirSync(path.join(process.env.rootdir, 'commands')).filter(file => file.replace(/\.ts$/, '.js').endsWith('.js'));
