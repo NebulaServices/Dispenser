@@ -6,8 +6,7 @@ import { readdirSync } from 'fs';
 import path from 'path';
 import {createSpinner} from "nanospinner";
 
-
-class Bot extends Client {
+export default class Bot extends Client {
     constructor(options: ClientOptions) {
         super(options);
     }
@@ -35,7 +34,6 @@ class Bot extends Client {
         });
 
         // load events
-
         const eventFiles: string[] = readdirSync(path.join(process.env.rootdir, 'events')).filter(file => file.replace(/\.ts$/, '.js').endsWith('.js'));
         eventFiles.map(async (eventFile: string): Promise<void> => {
             const eventName = eventFile.replace(/(\.ts|\.js)$/, '');
@@ -56,5 +54,3 @@ class Bot extends Client {
     }
 
 }
-
-export default Bot;

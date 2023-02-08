@@ -1,4 +1,4 @@
-import {CommandInteraction} from 'discord.js'
+import { CommandInteraction } from 'discord.js'
 import { RunCommand } from '../interfaces/Command';
 import Bot from '../classes/Bot';
 
@@ -6,11 +6,13 @@ const run: RunCommand = async (client: Bot, interaction: CommandInteraction): Pr
 
 };
 
-const name: string = 'test';
+const name: string = 'add';
 const cmdData = {
     name: name,
-    description: 'test the bot',
-    options: []
+    description: 'Add domains to dispense.',
+    options: [
+
+    ]
 }
 
 export { run, name, cmdData };
