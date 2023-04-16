@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 export default class DB {
-   modifyWebhookUrl(guildId: string, webhookUrl: string) {
+   static updateWebhookUrl(guildId: string, webhookUrl: string) {
         return prisma.serverSettings.update({
             where: {
                 serverId: guildId
@@ -12,7 +12,7 @@ export default class DB {
             }
         })
    }
-   getWebhookUrl(guildId: string) {
+   static getWebhookUrl(guildId: string) {
         return prisma.serverSettings.findFirst({
             where: {
                 serverId: guildId
@@ -22,7 +22,7 @@ export default class DB {
             }
         })
    }
-   getGuildBtnInfo (guildId: string) {
+   static getBtn(guildId: string) {
          return prisma.serverSettings.findFirst({
               where: {
                 serverId: guildId
@@ -34,13 +34,22 @@ export default class DB {
          })
    }
 
-    /***
-     *
-     * @param guildId
-     * @param userId
-     * @returns string | null
-     *
-     */
+    static updateBtn (guildId: string, btn: { emoji: string, label: string, style: string }) {
+        if (!this.getServer(guildId)) {
+            this.createServer(guildId);
+        }
+        return prisma.serverSettings.update({
+            where: {
+                serverId: guildId
+            },
+            data: {
+                buttonEmoji: btn.emoji ? btn.emoji : null,
+                buttonLabel: btn.label,
+                buttonColor: btn.style ? btn.style : null
+            }
+        })
+    }
+
    static getDomain (guildId: string, userId: string): string | null {
        prisma.domain.findMany({
             where: {
@@ -56,7 +65,7 @@ export default class DB {
             }
             for (let i = 0; i < res.length; i++) {
                 if (!res.userIdsUsed.includes(userId)) {
-                    if (res[i].userIdsUsed.length < this.getServer(guildId).usagePerUser) {
+                    if (res[i].userIdsUsed.length < this.getServer(guildId)) {
                         res[i].userIdsUsed.push(userId);
                         prisma.domain.update({
                             where: {
@@ -77,10 +86,6 @@ export default class DB {
         return null;
    }
 
-    /***
-     * @param userId
-     * @returns User | null
-     */
     static getUser (userId: string) {
         return prisma.user.findFirst({
             where: {
@@ -99,11 +104,18 @@ export default class DB {
     }
 
     static createServer (guildId: string) {
-        return prisma.serverSettings.create({
+        prisma.server.create({
+            data: {
+                serverId: guildId
+            }
+        })
+        prisma.serverSettings.create({
             data: {
                 serverId: guildId,
                 usagePerUser: 1,
-                reportsWebhookUrl: null
+                buttonEmoji: null,
+                buttonLabel: "Get Domain",
+                buttonColor: "PRIMARY"
             }
         })
     }
@@ -121,7 +133,10 @@ export default class DB {
 
 
    static updateUsage (guildId: string, usage: number) {
-        return prisma.serverSettings.update({
+       if (!this.getServer(guildId)) {
+           this.createServer(guildId);
+       }
+       return prisma.serverSettings.update({
             where: {
                 serverId: guildId
             },
@@ -131,17 +146,29 @@ export default class DB {
         })
    }
 
-   static getServer (guildId: string): any {
-        prisma.serverSettings.findFirst({
+   static getServer (guildId: string) {
+        return prisma.serverSettings.findFirst({
             where: {
                 serverId: guildId
+            },
+            select: {
+                usagePerUser: true,
             }
-        }).then((res: any) => {
-            if (res === null) {
-                return this.createServer(guildId);
-            }
-            return res;
         })
    }
 
+
+    static addDomain(serverId: string, domain: string, userId?: string) {
+        return prisma.domain.create({
+            data: {
+                server: {
+                    connect: {
+                        serverId: serverId
+                    }
+                },
+                domain: domain,
+                createdBy: userId ? userId : null,
+            }
+        })
+    }
 }

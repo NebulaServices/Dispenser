@@ -1,19 +1,22 @@
 import { Button, Bot } from "../classes/Bot";
-import {ButtonInteraction, ButtonStyle, ButtonBuilder, Message} from "discord.js";
-import s from "../assets/en_US.json" assert { type: "json" };
+import {ButtonInteraction, ButtonBuilder, Message} from "discord.js";
 import DB from "../classes/DB";
-let m = s.strings.buttons;
+import Utils from '../classes/Utils'
+
 
 export default class extends Button {
-    override build(): ButtonBuilder {
-        // use getDispenseButton or whatever here...
-
-        let lbl = m.neb.text
-        let emoji = m.neb.emoji
+    override build(args: string[]): ButtonBuilder {
+        let server: any;
+        console.log(args)
+        if (args && args.length > 0) {
+            server = DB.getBtn(args[0]!);
+        }
+        // convert server.buttonColor to Utils.ButtonStyles
         return new ButtonBuilder()
-            .setLabel(lbl)
-            .setStyle(ButtonStyle.Primary)
-            .setEmoji(emoji)
+            .setLabel(server.buttonLabel)
+            //@ts-ignore
+            .setStyle(Utils.ButtonStyles[server.buttonColor])
+            .setEmoji(server.buttonEmoji)
             .setCustomId(this.id());
     }
 

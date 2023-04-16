@@ -172,7 +172,7 @@ export abstract class MessageMenu {
 export abstract class Button {
     abstract run(interaction: ButtonInteraction, bot: Bot): Promise<void>;
 
-    abstract build(): ButtonBuilder;
+    abstract build(args?: string[]): ButtonBuilder;
     abstract id(): string;
 }
 

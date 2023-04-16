@@ -20,14 +20,14 @@ model server {
 }
 
 model domain {
-  domain      String   @id
-  id          String   @unique @default(uuid())
-  server      server?  @relation(fields: [serverId], references: [serverId])
+  domain      String    @id
+  id          String    @unique @default(uuid())
+  server      server?   @relation(fields: [serverId], references: [serverId])
   serverId    String
-  createdAt   DateTime @default(now())
-  createdBy   String
-  updatedAt   DateTime @updatedAt
-  updatedBy   String
+  createdAt   DateTime? @default(now())
+  createdBy   String?
+  updatedAt   DateTime? @updatedAt
+  updatedBy   String?
   userIdsUsed String[]
 
   @@unique([id, domain])
@@ -40,10 +40,10 @@ model serverSettings {
   server            server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId          String   @id
   logsWebhookUrl    String?
-  logsEnabled       Boolean  @default(false)
+  logsEnabled       Boolean? @default(false)
   reportsWebhookUrl String?
-  reportsEnabled    Boolean  @default(false)
-  usagePerUser      Int      @default(1)
+  reportsEnabled    Boolean? @default(false)
+  usagePerUser      Int?     @default(1)
   buttonEmoji       String?
   buttonLabel       String?
   buttonColor       String?
