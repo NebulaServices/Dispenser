@@ -1,37 +1,147 @@
-import { PrismaClient } from '@prisma/client';
-const Prisma =  new PrismaClient();
-import { createSpinner } from 'nanospinner';
-import perfy from 'perfy';
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
 export default class DB {
-    static async connect () {
-        const connectSpin = createSpinner(`Connecting to postgres server`).start();
-        perfy.start('dbconnect');
-        await Prisma.$connect();
-        connectSpin.success({text: `Database connected in ${perfy.end('dbconnect').time}s`});
-    }
-
-    linkFetch (action: "getAll" | "getOneUnused", id?: string) {
-        switch (action) {
-            case "getAll": {
-                return 0;
+   modifyWebhookUrl(guildId: string, webhookUrl: string) {
+        return prisma.serverSettings.update({
+            where: {
+                serverId: guildId
+            },
+            data: {
+                reportsWebhookUrl: webhookUrl
             }
-            case "getOneUnused": {
-                return 0;
+        })
+   }
+   getWebhookUrl(guildId: string) {
+        return prisma.serverSettings.findFirst({
+            where: {
+                serverId: guildId
+            },
+            select: {
+                reportsWebhookUrl: true
             }
-        }
-        return 0;
+        })
+   }
+   getGuildBtnInfo (guildId: string) {
+         return prisma.serverSettings.findFirst({
+              where: {
+                serverId: guildId
+              },
+                select: {
+                    serverId: true,
+
+                }
+         })
+   }
+
+    /***
+     *
+     * @param guildId
+     * @param userId
+     * @returns string | null
+     *
+     */
+   static getDomain (guildId: string, userId: string): string | null {
+       prisma.domain.findMany({
+            where: {
+                serverId: guildId,
+            }
+        }).then((res: any) => {
+            if (res.length > 0) {
+                return null;
+            }
+            let usr = this.getUser(userId);
+            if (usr === null) {
+                return null;
+            }
+            for (let i = 0; i < res.length; i++) {
+                if (!res.userIdsUsed.includes(userId)) {
+                    if (res[i].userIdsUsed.length < this.getServer(guildId).usagePerUser) {
+                        res[i].userIdsUsed.push(userId);
+                        prisma.domain.update({
+                            where: {
+                                id: res[i].id
+                            },
+                            data: {
+                                userIdsUsed: res[i].userIdsUsed
+                            }
+                        })
+                    } else {
+                        return null;
+                    }
+                    return res[i].domain;
+                }
+
+            }
+        })
+        return null;
+   }
+
+    /***
+     * @param userId
+     * @returns User | null
+     */
+    static getUser (userId: string) {
+        return prisma.user.findFirst({
+            where: {
+                id: userId
+            }
+        })
+    }
+    static createUser (userId: string, guildId: string) {
+        return prisma.user.create({
+            data: {
+                id: userId,
+                usageCount: 0,
+                serverId: guildId
+            }
+        })
     }
 
-    linkManagement (action: "add" | "remove", domain: string) {
-
+    static createServer (guildId: string) {
+        return prisma.serverSettings.create({
+            data: {
+                serverId: guildId,
+                usagePerUser: 1,
+                reportsWebhookUrl: null
+            }
+        })
     }
 
-    userManagement (action: "resetOne" | "resetAll" | "getProfileOne", id?: string) {
+   static createDomain (guildId: string, userId: string, domain: string) {
+        return prisma.domain.create({
+            data: {
+                domain: domain,
+                serverId: guildId,
+                createdBy: userId,
+                updatedBy: userId,
+            }
+        })
+   }
 
-    }
 
-    settingsManagement () {
+   static updateUsage (guildId: string, usage: number) {
+        return prisma.serverSettings.update({
+            where: {
+                serverId: guildId
+            },
+            data: {
+                usagePerUser: usage
+            }
+        })
+   }
 
-    }
+   static getServer (guildId: string): any {
+        prisma.serverSettings.findFirst({
+            where: {
+                serverId: guildId
+            }
+        }).then((res: any) => {
+            if (res === null) {
+                return this.createServer(guildId);
+            }
+            return res;
+        })
+   }
+
 }

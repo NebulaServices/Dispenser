@@ -7,12 +7,55 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
-  id      String @id
-  usage   Int    @default(3)
-  domains Json   @db.Json
+model server {
+  serverId       String          @id
+  id             String          @unique @default(uuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  serverSettings serverSettings?
+  domain         domain[]
+  users          user[]
+
+  @@unique([serverId, id])
 }
 
-model domains {
-  name String @id
+model domain {
+  domain      String   @id
+  id          String   @unique @default(uuid())
+  server      server?  @relation(fields: [serverId], references: [serverId])
+  serverId    String
+  createdAt   DateTime @default(now())
+  createdBy   String
+  updatedAt   DateTime @updatedAt
+  updatedBy   String
+  userIdsUsed String[]
+
+  @@unique([id, domain])
+}
+
+model serverSettings {
+  id                String   @default(uuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  server            server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId          String   @id
+  logsWebhookUrl    String?
+  logsEnabled       Boolean  @default(false)
+  reportsWebhookUrl String?
+  reportsEnabled    Boolean  @default(false)
+  usagePerUser      Int      @default(1)
+  buttonEmoji       String?
+  buttonLabel       String?
+  buttonColor       String?
+
+  @@unique([id, serverId])
+}
+
+model user {
+  id         String   @id @default(uuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  server     server   @relation(fields: [serverId], references: [serverId])
+  serverId   String
+  usageCount Int      @default(0)
 }

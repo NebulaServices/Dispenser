@@ -1,0 +1,19 @@
+{
+  "strings": {
+    "footer": "A Nebula service",
+    "panel": {
+      "embed_title": "Dispenser",
+      "embed_description": "Use the buttons to get domains, or to report.",
+      "reply_content": "Done!"
+    },
+    "config": {
+      "embed_title": "Bot Configuration"
+    },
+    "buttons": {
+      "neb": {
+        "text": "Nebula",
+        "emoji": "\uD83E\uDE90"
+      }
+    }
+  }
+}
