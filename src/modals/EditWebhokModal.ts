@@ -7,11 +7,26 @@ import {
     TextInputBuilder,
     TextInputStyle
 } from "discord.js";
+import DB from "../classes/DB";
 
 export default class extends Modal {
     override async run(interaction: ModalSubmitInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
-        // TODO: Add validation for webhook URLs
+        const discordWebhookRegex = /^(?:https:\/\/(?:canary|ptb)?\.?discord(?:app)?\.com\/api\/webhooks\/\d{17,19}\/[A-Za-z\d_-]{68})?$/
+        const reportWebhook = interaction.fields.getTextInputValue('reportWebhookInput');
+        const logWebhook = interaction.fields.getTextInputValue('logWebhookInput');
+
+        if (!discordWebhookRegex.test(reportWebhook) || !discordWebhookRegex.test(logWebhook)) {
+            await interaction.editReply({
+                content: "Error: Invalid webhook URL. Must be a valid Discord webhook URL."
+            });
+            return;
+        }
+        await DB.setWebhookUrl(interaction.guild!.id, {
+            reports: reportWebhook,
+            logs: logWebhook
+        })
+
         await interaction.editReply({
             content: "Success! Edited webhook URLs for this guild."
         });
@@ -37,7 +52,6 @@ export default class extends Modal {
                             .setCustomId('reportWebhookInput')
                             .setLabel('Reports Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
-                            .setValue('a') // TODO: Get preexisting value from database
                             .setStyle(TextInputStyle.Short)
                     ),
                 new ActionRowBuilder<ModalActionRowComponentBuilder>()
@@ -46,7 +60,6 @@ export default class extends Modal {
                             .setCustomId('logWebhookInput')
                             .setLabel('Logging Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
-                            .setValue('a') // TODO: Get preexisting value from database
                             .setStyle(TextInputStyle.Short)
                     )
             )

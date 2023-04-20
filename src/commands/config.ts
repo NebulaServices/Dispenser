@@ -1,9 +1,9 @@
 import { Command, CommandOption, Bot } from "../classes/Bot";
-import { ActionRowBuilder, ButtonBuilder, CommandInteraction } from "discord.js";
+import {ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction } from "discord.js";
 import s from "../assets/en_US.json" assert { type: "json" };
 let m = s.strings.config;
 export default class extends Command {
-    override async run(interaction: CommandInteraction, bot: Bot): Promise<void> {
+    override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply();
         await interaction.editReply({
             embeds: [

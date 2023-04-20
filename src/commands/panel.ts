@@ -1,9 +1,9 @@
 import { Command, CommandOption, Bot } from "../classes/Bot";
-import {CommandInteraction, ActionRowBuilder, ButtonBuilder} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction} from "discord.js";
 import s from "../assets/en_US.json" assert { type: "json" };
 let m = s.strings.panel;
 export default class extends Command {
-    override async run(interaction: CommandInteraction, bot: Bot): Promise<void> {
+    override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
 
         await interaction.channel!.send({
@@ -20,7 +20,7 @@ export default class extends Command {
             ],
             components: [
                 new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents([bot.getButton("paneldispensebtn")?.build()!, bot.getButton("panelreportbtn")?.build()!])
+                    .addComponents([bot.getButton("paneldispensebtn")?.build([interaction.guild!.id])!, bot.getButton("panelreportbtn")?.build()!])
             ]
         })
 
@@ -35,6 +35,10 @@ export default class extends Command {
 
     override description(): string {
         return "Create a dispenser panel";
+    }
+
+    override DMUsable(): boolean {
+        return false;
     }
 
     override options(): CommandOption[] {

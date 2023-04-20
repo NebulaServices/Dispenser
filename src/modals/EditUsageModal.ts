@@ -18,7 +18,7 @@ export default class extends Modal {
 
         if (/^[1-9][0-9]?$/.test(usage)) {
             msg = "Success! Edited usage for this guild."
-            DB.updateUsage(interaction.guildId!, Number(usage));
+            await DB.updateUsage(interaction.guildId!, Number(usage));
         } else {
             msg = "Error: Invalid usage. Must be a number between 1 and 99."
         }

@@ -76,10 +76,6 @@ export default class extends Modal {
     }
 
     override build(args: string[]): ModalBuilder {
-        let server: any;
-        if (args.length > 0) {
-            server = DB.getBtn(args[0]!);
-        }
         return new ModalBuilder()
             .setCustomId(this.id())
             .setTitle(this.name())
@@ -92,7 +88,7 @@ export default class extends Modal {
                             .setPlaceholder('Default emoji (e.g. 🔒) or custom emoji (e.g. :emoji:1234567890)')
                             .setStyle(TextInputStyle.Short)
                             .setRequired(false)
-                            .setValue(server.buttonLabel ?? "")
+                            .setValue("")
                     ),
                 new ActionRowBuilder<ModalActionRowComponentBuilder>()
                     .addComponents(
@@ -103,7 +99,7 @@ export default class extends Modal {
                             .setRequired(false)
                             .setMaxLength(80)
                             .setMinLength(0)
-                            .setValue(server.buttonLabel ?? "")
+                            .setValue("")
                         ),
                 new ActionRowBuilder<ModalActionRowComponentBuilder>()
                     .addComponents(
@@ -113,7 +109,7 @@ export default class extends Modal {
                             .setPlaceholder('ALLOWED: Primary, Secondary, Success, Danger')
                             .setStyle(TextInputStyle.Short)
                             .setRequired(true)
-                            .setValue(server.buttonColor ?? "")
+                            .setValue("")
                     )
             )
     }

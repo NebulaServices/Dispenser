@@ -4,13 +4,12 @@ import {REST} from "@discordjs/rest";
 import {
     ApplicationCommandOptionType,
     ButtonBuilder,
-    ButtonInteraction,
+    ButtonInteraction, ChatInputCommandInteraction,
     Client,
     ClientOptions,
-    CommandInteraction,
     ContextMenuCommandBuilder,
     ContextMenuCommandType,
-    MessageContextMenuCommandInteraction, ModalBuilder, ModalSubmitInteraction,
+    MessageContextMenuCommandInteraction, ModalBuilder, ModalSubmitInteraction, PermissionResolvable,
     Routes,
     SlashCommandBuilder
 } from "discord.js";
@@ -154,12 +153,13 @@ export interface CommandOption {
 
 
 export abstract class Command {
-    abstract run(interaction: CommandInteraction, bot: Bot): Promise<void>;
+    abstract run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void>;
 
     abstract name(): string;
     abstract description(): string;
     DMUsable?(): boolean { return false; }
     options(): CommandOption[] { return []; }
+    permissions(): PermissionResolvable[] { return []; }
 }
 
 export abstract class MessageMenu {
