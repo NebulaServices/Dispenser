@@ -14,7 +14,7 @@ export default class extends Button {
     }
 
     override async run (interaction: ButtonInteraction, bot: Bot): Promise<void> {
-        interaction.showModal(bot.getModal("configeditwebhookmdl")!.build([interaction.guild!.id]));
+        await interaction.showModal(bot.getModal("configeditwebhookmdl")!.build([interaction.guild!.id]));
     }
 
 }

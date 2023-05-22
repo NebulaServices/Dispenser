@@ -1,12 +1,12 @@
-import { MessageMenu, Bot} from "../classes/Bot";
+import {ContextMenu, Bot, CommandPermissions} from "../classes/Bot";
 import {
     MessageContextMenuCommandInteraction,
     ContextMenuCommandType,
-    ApplicationCommandType,
+    ApplicationCommandType, PermissionsBitField,
 } from "discord.js";
 import DB from "../classes/DB";
 
-export default class extends MessageMenu {
+export default class extends ContextMenu {
     override async run(interaction: MessageContextMenuCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
         await DB.unbanUser(interaction.targetId, interaction.guildId!);
@@ -19,5 +19,12 @@ export default class extends MessageMenu {
 
     override type(): ContextMenuCommandType {
         return ApplicationCommandType.User
+    }
+
+    override permissions(): CommandPermissions {
+        return {
+            permissions: PermissionsBitField.Flags.BanMembers,
+            dmUsable: false,
+        }
     }
 }

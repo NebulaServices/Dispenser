@@ -13,45 +13,55 @@ model server {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   serverSettings serverSettings?
-  domain         domain[]
+  domainGroups   domainGroup[]
   users          user[]
+  roles          role[]
 
   @@unique([serverId, id])
 }
 
-model domain {
-  domain    String    @id
-  id        String    @unique @default(uuid())
-  server    server?   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
-  serverId  String
-  createdAt DateTime? @default(now())
-  createdBy String?
-  updatedAt DateTime? @updatedAt
-  updatedBy String?
+model domainGroup {
+  groupId     String    @id @unique @default(uuid())
+  createdAt   DateTime? @default(now())
+  createdBy   String?
+  updatedAt   DateTime? @updatedAt
+  updatedBy   String?
+  server      server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId    String
+  domains     domain[]
+  buttonEmoji String?
+  buttonLabel String?
+  buttonType  BUTTON?
 
-  @@unique([id, domain])
+  @@index([serverId, groupId])
+}
+
+model domain {
+  domainName    String      @id @unique
+  id            String      @unique @default(uuid())
+  createdAt     DateTime?   @default(now())
+  createdBy     String?
+  updatedAt     DateTime?   @updatedAt
+  updatedBy     String?
+  domainGroup   domainGroup @relation(fields: [domainGroupId], references: [groupId], onDelete: Cascade)
+  domainGroupId String
+  serverId      String
 }
 
 model serverSettings {
-  id                String   @default(uuid())
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   server            server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId          String   @id @unique
   logsWebhookUrl    String?
-  logsEnabled       Boolean? @default(false)
+  logsEnabled       Boolean  @default(false)
   reportsWebhookUrl String?
-  reportsEnabled    Boolean? @default(false)
+  reportsEnabled    Boolean  @default(false)
   usagePerUser      Int?     @default(1)
-  buttonEmoji       String?
-  buttonLabel       String?
-  buttonColor       String?
-
-  @@unique([id, serverId])
 }
 
 model user {
-  id          String   @id @unique @default(uuid())
+  userId      String   @id @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   server      server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
@@ -59,4 +69,20 @@ model user {
   usedDomains String[]
   usageCount  Int      @default(0)
   banned      Boolean? @default(false)
+}
+
+model role {
+  roleId       String   @id @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  server       server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId     String
+  specialLimit Int?
+}
+
+enum BUTTON {
+  PRIMARY
+  SECONDARY
+  SUCCESS
+  DANGER
 }

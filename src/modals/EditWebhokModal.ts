@@ -16,16 +16,23 @@ export default class extends Modal {
         const reportWebhook = interaction.fields.getTextInputValue('reportWebhookInput');
         const logWebhook = interaction.fields.getTextInputValue('logWebhookInput');
 
-        if (!discordWebhookRegex.test(reportWebhook) || !discordWebhookRegex.test(logWebhook)) {
+        if (!discordWebhookRegex.test(reportWebhook) || !discordWebhookRegex.test(logWebhook) && reportWebhook !== "" && logWebhook !== "") {
             await interaction.editReply({
                 content: "Error: Invalid webhook URL. Must be a valid Discord webhook URL."
             });
             return;
         }
-        await DB.setWebhookUrl(interaction.guild!.id, {
-            reports: reportWebhook,
-            logs: logWebhook
-        })
+        try {
+            await DB.setWebhookUrl(interaction.guild!.id, {
+                reports: reportWebhook,
+                logs: logWebhook
+            })
+        } catch (e) {
+            await interaction.editReply({
+                content: `Error: Failed to set webhook URL: ${e}`
+            });
+            return;
+        }
 
         await interaction.editReply({
             content: "Success! Edited webhook URLs for this guild."
@@ -40,8 +47,7 @@ export default class extends Modal {
         return "configeditwebhookmdl";
     }
 
-    override build(): ModalBuilder {
-        
+    override build(args: string[]): ModalBuilder {
         return new ModalBuilder()
             .setCustomId(this.id())
             .setTitle(this.name())
@@ -52,7 +58,9 @@ export default class extends Modal {
                             .setCustomId('reportWebhookInput')
                             .setLabel('Reports Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
+                            .setValue('')
                             .setStyle(TextInputStyle.Short)
+                            .setRequired(false)
                     ),
                 new ActionRowBuilder<ModalActionRowComponentBuilder>()
                     .addComponents(
@@ -60,7 +68,9 @@ export default class extends Modal {
                             .setCustomId('logWebhookInput')
                             .setLabel('Logging Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
+                            .setValue('')
                             .setStyle(TextInputStyle.Short)
+                            .setRequired(false)
                     )
             )
     }

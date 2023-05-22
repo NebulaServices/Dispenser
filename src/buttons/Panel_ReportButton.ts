@@ -1,20 +1,31 @@
-import { Button, Bot } from "../classes/Bot";
-import {ButtonInteraction, ButtonStyle, ButtonBuilder} from "discord.js";
+import {Bot, Button} from "../classes/Bot";
+import {ButtonBuilder, ButtonInteraction, ButtonStyle} from "discord.js";
+
 
 export default class extends Button {
-    override build(): ButtonBuilder {
-        return new ButtonBuilder()
-            .setLabel("Report")
+
+    // write a build override that disables the button if !DB.doesReporeWebhookExist(interaction.guildId!)
+    override build(args: string[]): ButtonBuilder {
+        let builder = new ButtonBuilder()
+        if (args[0] == "true") {
+            builder.setDisabled(true);
+        }
+        
+        builder
+            .setLabel("Send a report")
             .setStyle(ButtonStyle.Danger)
-            .setEmoji("⚠️")
             .setCustomId(this.id());
+
+        return builder;
     }
+
+
 
     override id(): string {
         return "panelreportbtn";
     }
 
     override async run (interaction: ButtonInteraction, bot: Bot): Promise<void> {
-        await interaction.showModal(bot.getModal("reportmdl")!.build());
+        await interaction.showModal(await bot.getModal("reportmdl")!.build([interaction.guild!.id]));
     }
 }

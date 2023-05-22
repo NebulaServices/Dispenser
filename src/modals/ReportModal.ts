@@ -7,16 +7,57 @@ import {
     TextInputBuilder,
     TextInputStyle
 } from "discord.js";
+import Utils from "../classes/Utils";
 
 export default class extends Modal {
     override async run(interaction: ModalSubmitInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
-        //let domain = interaction.fields.getTextInputValue('domainInput');
-        //let reason = interaction.fields.getTextInputValue('reasonInput');
-        //let blocker = interaction.fields.getTextInputValue('blockerInput');
+        try {
+            await Utils.sendWebhook(interaction.guildId!, 1, [
+                Utils.getEmbed(0xff0000, {
+                    title: "New Report",
+                    fields: [
+                        {
+                            name: "Reporter",
+                            value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
+                        },
+                        {
+                            name: "Domain",
+                            value: interaction.fields.getTextInputValue('domainInput'),
+                        },
+                        {
+                            name: "Reason",
+                            value: interaction.fields.getTextInputValue('reasonInput'),
+                        },
+                        {
+                            name: "Blocker",
+                            value: interaction.fields.getTextInputValue('schoolFilterInput'),
+                        }
+                    ],
+                    author: {
+                        name: interaction.user.username,
+                        iconURL: interaction.user.avatarURL()!
+                    }
+                })
+            ])
+        } catch (e) {
+            await interaction.editReply({
+                embeds: [
+                    Utils.getEmbed(0xff0000, {
+                        title: "Failed to send report",
+                    })
+                ]
+            });
+            return;
+        }
 
         await interaction.editReply({
-            content: "Your report has been submitted!"
+            embeds: [
+                Utils.getEmbed(0x702963, {
+                    title: "Success",
+                    description: "Your report has been sent!"
+                })
+            ]
         });
     }
 

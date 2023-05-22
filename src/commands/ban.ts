@@ -1,13 +1,70 @@
-import { Command, CommandOption, Bot } from "../classes/Bot";
-import {ApplicationCommandOptionType, ChatInputCommandInteraction, PermissionResolvable, PermissionsBitField} from "discord.js";
+import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
+import {
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+} from "discord.js";
 import DB from "../classes/DB";
+import Utils from "../classes/Utils";
 
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ ephemeral: interaction.options.getBoolean("ephemeral") ?? true });
-        await DB.banUser(interaction.options.getUser("user")!.id, interaction.guildId!);
-        await interaction.editReply(`Success! Banned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`);
+        try {
+            await DB.banUser(interaction.options.getUser("user")!.id, interaction.guildId!);
+        } catch (e) {
+            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to ban user`, description: e!.toString() }) ] });
+
+            await Utils.sendWebhook(interaction.guildId!, 2, [
+                Utils.getEmbed(0xff0000, {
+                    title: `Failed to ban user`,
+                    fields: [
+                        {
+                            name: "User",
+                            value: `<@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag} | ${interaction.options.getUser("user")?.id})`,
+                        },
+                        {
+                            name: "Banned By",
+                            value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
+                        },
+                        {
+                            name: "Ban Method",
+                            value: "Command"
+                        },
+                        {
+                            name: "Error",
+                            value: e!.toString()
+                        }
+                    ]
+                })
+            ])
+
+            return;
+        }
+
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x702963, { title: `Success!`, description: `Banned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
+
+        await Utils.sendWebhook(interaction.guildId!, 2, [
+            Utils.getEmbed(0x702963, {
+                title: `User Banned`,
+                fields: [
+                    {
+                        name: "User",
+                        value: `<@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag} | ${interaction.options.getUser("user")?.id})`,
+                    },
+                    {
+                        name: "Banned By",
+                        value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
+                    },
+                    {
+                        name: "Ban Method",
+                        value: "Command"
+                    }
+                ]
+            })
+        ])
     }
+
+
 
     override name(): string {
         return "ban";
@@ -31,7 +88,11 @@ export default class extends Command {
             required: false
         }];
     }
-    override permissions(): PermissionResolvable[] {
-        return [PermissionsBitField.Flags.ManageGuild];
+
+    override permissions(): CommandPermissions {
+        return {
+            //permissions: PermissionsBitField.Flags.BanMembers,
+            dmUsable: false
+        }
     }
 }

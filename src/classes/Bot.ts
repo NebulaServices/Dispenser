@@ -2,16 +2,20 @@ import dotenv from "dotenv";
 import fs from "fs";
 import {REST} from "@discordjs/rest";
 import {
+    ActivityOptions,
     ApplicationCommandOptionType,
     ButtonBuilder,
-    ButtonInteraction, ChatInputCommandInteraction,
+    ButtonInteraction,
+    ChatInputCommandInteraction,
     Client,
     ClientOptions,
     ContextMenuCommandBuilder,
     ContextMenuCommandType,
-    MessageContextMenuCommandInteraction, ModalBuilder, ModalSubmitInteraction, PermissionResolvable,
+    MessageContextMenuCommandInteraction,
+    ModalBuilder,
+    ModalSubmitInteraction, PresenceStatusData,
     Routes,
-    SlashCommandBuilder
+    SlashCommandBuilder, UserContextMenuCommandInteraction
 } from "discord.js";
 
 
@@ -54,8 +58,12 @@ async function init(): Promise<void> {
             addOptions(option, cmd);
         }
 
-        if (command.DMUsable) {
+        if (command.permissions().dmUsable) {
             cmd.setDMPermission(true);
+        }
+
+        if (command.permissions().permissions) {
+            cmd.setDefaultMemberPermissions(command.permissions().permissions);
         }
 
         commands.push(cmd);
@@ -64,11 +72,23 @@ async function init(): Promise<void> {
     let registrars: any = commands.map(command => command.toJSON());
     console.log(`Successfully registered ${commands.length} commands.`);
 
-    const menuObjects: MessageMenu[] = await getMenus();
+    const menuObjects: ContextMenu[] = await getMenus();
     const menus: ContextMenuCommandBuilder [] = [];
 
     for (let menu of menuObjects) {
-        menus.push(new ContextMenuCommandBuilder().setName(menu.name()).setType(menu.type()));
+        let menuBuilder = new ContextMenuCommandBuilder()
+            .setName(menu.name())
+            .setType(menu.type());
+
+        if (menu.permissions().dmUsable) {
+            menuBuilder.setDMPermission(true);
+        }
+
+        if (menu.permissions().permissions) {
+            menuBuilder.setDefaultMemberPermissions(menu.permissions().permissions);
+        }
+
+        menus.push();
     }
 
     registrars = menus.map(menu => menu.toJSON()).concat(registrars)
@@ -77,8 +97,9 @@ async function init(): Promise<void> {
 
     await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID!, process.env.GUILD_ID!), { body: registrars });
 
-} init()
+}
 
+init()
 
 async function getCommands(): Promise<Command[]> {
     let commands: Command[] = [];
@@ -102,8 +123,8 @@ async function getCommands(): Promise<Command[]> {
     return commands;
 }
 
-async function getMenus(): Promise<MessageMenu[]> {
-    let menus: MessageMenu[] = [];
+async function getMenus(): Promise<ContextMenu[]> {
+    let menus: ContextMenu[] = [];
 
     for (let file of fs.readdirSync("./src/menus/").filter(file => file.endsWith(".ts"))) {
         let imports = await import(`../menus/${file}`);
@@ -138,9 +159,7 @@ async function getModals(): Promise<Modal[]> {
     return modals;
 }
 
-
 export interface CommandOption {
-
     type: ApplicationCommandOptionType
     name: string;
     description: string;
@@ -151,22 +170,30 @@ export interface CommandOption {
     }[];
 }
 
+export interface CommandPermissions {
+    dmUsable?: boolean;
+    permissions?: bigint;
+}
+
+
 
 export abstract class Command {
     abstract run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void>;
 
     abstract name(): string;
     abstract description(): string;
-    DMUsable?(): boolean { return false; }
     options(): CommandOption[] { return []; }
-    permissions(): PermissionResolvable[] { return []; }
+    abstract permissions(): CommandPermissions;
 }
 
-export abstract class MessageMenu {
-    abstract run(interaction: MessageContextMenuCommandInteraction, bot: Bot): Promise<void>;
+export abstract class ContextMenu {
+    abstract run(interaction: MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction, bot: Bot): Promise<void>;
 
     abstract name(): string;
+
     abstract type(): ContextMenuCommandType;
+
+    abstract permissions(): CommandPermissions;
 }
 
 export abstract class Button {
@@ -183,25 +210,23 @@ export abstract class Modal {
     abstract build(args?: string[]): ModalBuilder;
     abstract id(): string;
 }
+
 export class Bot {
-
-
-    constructor(token: string, intents: ClientOptions, status: string) {
+    constructor(token: string, intents: ClientOptions) {
         this.client = new Client(intents);
-
+        Bot.client = this.client;
         this.initCommands();
 
         this.client.on("interactionCreate", async interaction => {
             if (interaction.isChatInputCommand()) {
                 const command: Undefinable<Command> = this.commands.find(command => command.name() === interaction.commandName);
-
                 if (command) {
                     await command.run(interaction, this);
                 } else {
                     await interaction.reply("Command not found");
                 }
-            } else if (interaction.isMessageContextMenuCommand()) {
-                const menu: Undefinable<MessageMenu> = this.msgmenus.find(menu => menu.name() === interaction.commandName);
+            } else if (interaction.isUserContextMenuCommand() || interaction.isMessageContextMenuCommand()) {
+                const menu: Undefinable<ContextMenu> = this.ctxmenus.find(menu => menu.name() === interaction.commandName);
 
                 if (menu) {
                     await menu.run(interaction, this);
@@ -228,15 +253,15 @@ export class Bot {
         });
 
         this.client.login(token);
-
-        this.client.on("ready", () => {
-            this.client.user?.setActivity(status);
-
-        });
     }
-    private async initCommands(): Promise<void> {
+
+    public async showStatus (status: PresenceStatusData, activity: ActivityOptions): Promise<void> {
+        await this.client.user?.setPresence({ status, activities: [activity] });
+    }
+
+    public async initCommands(): Promise<void> {
         this.commands = await getCommands();
-        this.msgmenus = await getMenus();
+        this.ctxmenus = await getMenus();
         this.buttons = await getButtons();
         this.modals = await getModals();
     }
@@ -249,9 +274,10 @@ export class Bot {
         return this.modals.find(modal => modal.id() === id);
     }
 
-    client: Client;
+    client: Client<true>;
+    static client: Client;
     commands: Command[] = [];
-    msgmenus: MessageMenu[] = [];
+    ctxmenus: ContextMenu[] = [];
     buttons: Button[] = [];
     modals: Modal[] = [];
 }

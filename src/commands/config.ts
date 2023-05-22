@@ -1,14 +1,14 @@
-import { Command, CommandOption, Bot } from "../classes/Bot";
+import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
 import {ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction } from "discord.js";
-import s from "../assets/en_US.json" assert { type: "json" };
-let m = s.strings.config;
+
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply();
         await interaction.editReply({
             embeds: [
                 {
-                    title: m.embed_title
+                    title: "Configuration Panel",
+                    description: "Configure the bot using the buttons below."
                 }
             ],
             components: [
@@ -28,5 +28,9 @@ export default class extends Command {
 
     override options(): CommandOption[] {
         return [];
+    }
+
+    override permissions(): CommandPermissions {
+        return {}
     }
 }

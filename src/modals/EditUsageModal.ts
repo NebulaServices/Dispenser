@@ -8,6 +8,7 @@ import {
     TextInputStyle
 } from "discord.js";
 import DB from "../classes/DB";
+import Utils from "../classes/Utils";
 
 
 export default class extends Modal {
@@ -26,6 +27,25 @@ export default class extends Modal {
         await interaction.editReply({
             content: msg
         });
+
+        await Utils.sendWebhook(interaction.guildId!, 2, [
+            Utils.getEmbed(0x702963, {
+                title: `Usage Modified`,
+                description: `Allowed usage for this guild has been modified.`,
+                fields: [
+                    {
+                        name: "New Usage",
+                        value: usage,
+                        inline: false
+                    },
+                    {
+                        name: "Modified By",
+                        value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
+                        inline: false
+                    }
+                ]
+            })
+        ])
     }
 
     override name(): string {
