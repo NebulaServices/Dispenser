@@ -14,6 +14,26 @@ export default class extends Command {
         }
 
         await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success!`, description: `Unbanned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
+
+        await Utils.sendWebhook(interaction.guildId!, 2, [
+            Utils.getEmbed(0x814fff, {
+                title: `User Unbanned`,
+                fields: [
+                    {
+                        name: "User",
+                        value: `<@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag} | ${interaction.options.getUser("user")?.id})`,
+                    },
+                    {
+                        name: "Unbanned By",
+                        value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
+                    },
+                    {
+                        name: "Unban Method",
+                        value: "Command"
+                    }
+                ]
+            })
+        ])
     }
 
     override name(): string {
@@ -25,18 +45,20 @@ export default class extends Command {
     }
 
     override options(): CommandOption[] {
-        return [{
+        return [
+            {
             name: "user",
             description: "The user to unban",
             type: ApplicationCommandOptionType.User,
             required: true
         },
-            {
-                name: "ephemeral",
-                description: "Whether the response should be ephemeral or not.",
-                type: ApplicationCommandOptionType.Boolean,
-                required: false
-            }];
+        {
+            name: "ephemeral",
+            description: "Whether the response should be ephemeral or not.",
+            type: ApplicationCommandOptionType.Boolean,
+            required: false
+        }
+        ];
     }
     override permissions(): CommandPermissions {
         return {

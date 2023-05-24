@@ -1,10 +1,11 @@
 import {ContextMenu, Bot, CommandPermissions} from "../classes/Bot";
 import {
-    MessageContextMenuCommandInteraction,
     ContextMenuCommandType,
-    ApplicationCommandType, PermissionsBitField,
+    ApplicationCommandType, //PermissionsBitField,
+     MessageContextMenuCommandInteraction,
 } from "discord.js";
 import DB from "../classes/DB";
+import Utils from "../classes/Utils";
 
 export default class extends ContextMenu {
     override async run(interaction: MessageContextMenuCommandInteraction, bot: Bot): Promise<void> {
@@ -17,6 +18,26 @@ export default class extends ContextMenu {
         }
 
         await interaction.editReply(`Success! Banned user <@${interaction.targetId}>`);
+
+        await Utils.sendWebhook(interaction.guildId!, 2, [
+            Utils.getEmbed(0x814fff, {
+                title: `User Banned`,
+                fields: [
+                    {
+                        name: "User",
+                        value: `<@${interaction.targetId}> (${interaction.targetId})`,
+                    },
+                    {
+                        name: "Banned By",
+                        value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
+                    },
+                    {
+                        name: "Ban Method",
+                        value: "Context Menu"
+                    }
+                ]
+            })
+        ])
     }
 
     override name(): string {
@@ -29,7 +50,7 @@ export default class extends ContextMenu {
 
     override permissions(): CommandPermissions {
         return {
-            permissions: PermissionsBitField.Flags.BanMembers,
+            //permissions: PermissionsBitField.Flags.BanMembers,
             dmUsable: false,
         }
     }

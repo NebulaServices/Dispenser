@@ -88,7 +88,7 @@ async function init(): Promise<void> {
             menuBuilder.setDefaultMemberPermissions(menu.permissions().permissions);
         }
 
-        menus.push();
+        menus.push(menuBuilder);
     }
 
     registrars = menus.map(menu => menu.toJSON()).concat(registrars)

@@ -8,6 +8,7 @@ import {
     TextInputStyle
 } from "discord.js";
 import DB from "../classes/DB";
+import Utils from "../classes/Utils";
 
 export default class extends Modal {
     override async run(interaction: ModalSubmitInteraction, bot: Bot): Promise<void> {
@@ -37,6 +38,18 @@ export default class extends Modal {
         await interaction.editReply({
             content: "Success! Edited webhook URLs for this guild."
         });
+
+        await Utils.sendWebhook(interaction.guild!.id, 2, [
+            Utils.getEmbed(0x814fff, {
+                title: `Webhook URLs Edited`,
+                fields: [
+                    {
+                        name: "Edited By",
+                        value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`
+                    }
+                ]
+            })
+        ])
     }
 
     override name(): string {

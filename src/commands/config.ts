@@ -13,7 +13,7 @@ export default class extends Command {
             ],
             components: [
                 new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents([bot.getButton("btnconfigeditwebhook")?.build()!, bot.getButton("btnconfigeditbuttonstyle")?.build()!, bot.getButton("btnconfigeditusagebtn")?.build()!])
+                    .addComponents([bot.getButton("btnconfigeditwebhook")?.build()!, bot.getButton("btnconfigeditusagebtn")?.build()!])
             ]
         });
     }
