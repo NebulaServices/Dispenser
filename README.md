@@ -67,8 +67,5 @@ Installation instructions can be found on the [wiki](https://github.com/NebulaSe
 
 See our [contributors](https://github.com/NebulaServices/Dispenser/graphs/contributors)
 
-Dispenser is a product of Nebula Services | Copyright Nebula Services 2022
-<br>
-Copyright questions ----> accounts-management@nebula.bio
-<br>
+
 Need help or want to contribute? Open a ticket -> https://discord.nebula.bio
