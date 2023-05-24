@@ -21,7 +21,7 @@ model server {
 }
 
 model domainGroup {
-  groupId     String    @id @unique @default(uuid())
+  groupId     String    @id @default(uuid())
   createdAt   DateTime? @default(now())
   createdBy   String?
   updatedAt   DateTime? @updatedAt
@@ -37,8 +37,8 @@ model domainGroup {
 }
 
 model domain {
-  domainName    String      @id @unique
-  id            String      @unique @default(uuid())
+  domainName    String      @id
+  id            String      @default(uuid())
   createdAt     DateTime?   @default(now())
   createdBy     String?
   updatedAt     DateTime?   @updatedAt
@@ -50,6 +50,7 @@ model domain {
 
 model serverSettings {
   createdAt         DateTime @default(now())
+  createdBy         String?
   updatedAt         DateTime @updatedAt
   server            server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId          String   @id @unique
@@ -57,12 +58,13 @@ model serverSettings {
   logsEnabled       Boolean  @default(false)
   reportsWebhookUrl String?
   reportsEnabled    Boolean  @default(false)
-  usagePerUser      Int?     @default(1)
+  usagePerUser      Int      @default(1)
 }
 
 model user {
-  userId      String   @id @unique
+  userId      String   @id
   createdAt   DateTime @default(now())
+  createdBy   String?
   updatedAt   DateTime @updatedAt
   server      server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId    String
@@ -74,6 +76,7 @@ model user {
 model role {
   roleId       String   @id @unique
   createdAt    DateTime @default(now())
+  createdBy    String?
   updatedAt    DateTime @updatedAt
   server       server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId     String

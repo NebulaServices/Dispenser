@@ -13,10 +13,10 @@ export default class extends Command {
             return;
         }
 
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x702963, { title: `Success! Reset all users.`, description: `I reset their usage count${interaction.options.getBoolean("dupes") ? ", and reset their dupes." : " only."}`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success! Reset all users.`, description: `I reset their usage count${interaction.options.getBoolean("dupes") ? ", and reset their dupes." : " only."}`}) ]});
 
         await Utils.sendWebhook(interaction.guild!.id, 2, [
-            Utils.getEmbed(0x702963, {
+            Utils.getEmbed(0x814fff, {
                 title: `All Users Reset`,
                 fields: [
                     {

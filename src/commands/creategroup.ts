@@ -26,10 +26,10 @@ export default class extends Command {
             await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to create group`, description: e!.toString() }) ] });
             return;
         }
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x702963, { title: `Success`, description: `Created group \`${interaction.options.getString("name")}\`.`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Created group \`${interaction.options.getString("name")}\`.`}) ]});
 
         await Utils.sendWebhook(interaction.guildId!, 2, [
-            Utils.getEmbed(0x702963, {
+            Utils.getEmbed(0x814fff, {
                 title: `Group Created`,
                 fields: [
                     {

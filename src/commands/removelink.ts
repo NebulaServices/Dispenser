@@ -16,7 +16,7 @@ export default class extends Command {
             await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to delete`, description: e!.toString() }) ] });
             return;
         }
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x702963, { title: `Success`, description: `Removed <${interaction.options.getString("domain")}> from group \`${interaction.options.getString("group")}\`.`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Removed <${interaction.options.getString("domain")}> from group \`${interaction.options.getString("group")}\`.`}) ]});
     }
 
     override name(): string {

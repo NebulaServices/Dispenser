@@ -41,10 +41,10 @@ export default class extends Command {
             return;
         }
 
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x702963, { title: `Success!`, description: `Banned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success!`, description: `Banned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
 
         await Utils.sendWebhook(interaction.guildId!, 2, [
-            Utils.getEmbed(0x702963, {
+            Utils.getEmbed(0x814fff, {
                 title: `User Banned`,
                 fields: [
                     {

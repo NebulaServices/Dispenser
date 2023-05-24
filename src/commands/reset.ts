@@ -16,9 +16,9 @@ export default class extends Command {
             await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to reset user`, description: e!.toString() }) ] });
             return;
         }
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x702963, { title: `Success!`, description: `Reset user ${interaction.options.getUser("user")?.tag} \nI reset their usage count${interaction.options.getBoolean("dupes") ? ", and their dupes." : " only."}`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success!`, description: `Reset user ${interaction.options.getUser("user")?.tag} \nI reset their usage count${interaction.options.getBoolean("dupes") ? ", and their dupes." : " only."}`}) ]});
         await Utils.sendWebhook(interaction.guild!.id, 2, [
-            Utils.getEmbed(0x702963, {
+            Utils.getEmbed(0x814fff, {
                 title: `User Reset`,
                 fields: [
                     {

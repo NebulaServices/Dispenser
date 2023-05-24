@@ -53,7 +53,7 @@ export default class extends Modal {
 
         await interaction.editReply({
             embeds: [
-                Utils.getEmbed(0x702963, {
+                Utils.getEmbed(0x814fff, {
                     title: "Success",
                     description: "Your report has been sent!"
                 })

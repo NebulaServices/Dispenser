@@ -13,7 +13,7 @@ export default class extends Command {
             return;
         }
 
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x702963, { title: `Success!`, description: `Unbanned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success!`, description: `Unbanned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
     }
 
     override name(): string {

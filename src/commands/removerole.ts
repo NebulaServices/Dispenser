@@ -7,45 +7,46 @@ import Utils from "../classes/Utils";
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
+
         try {
-            await DB.deleteGroup(interaction.guild!.id, interaction.options.getString("name")!);
+            await DB.removeRole(interaction.guildId!, interaction.options.getRole("role")!.id)
         } catch (e) {
-            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to delete group`, description: e!.toString() }) ] });
+            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to remove role`, description: e!.toString() }) ] });
             return;
         }
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Deleted group \`${interaction.options.getString("name")}\`.`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Removed role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
 
-        await Utils.sendWebhook(interaction.guildId!, 2, [
+        await Utils.sendWebhook(interaction.guild!.id, 2, [
             Utils.getEmbed(0x814fff, {
-                title: `Group Deleted`,
-                fields: [
+                title: `Role Removed`,
+                fields: [ 
                     {
-                        name: "Group Name",
-                        value: interaction.options.getString("name")!,
+                        name: "Role",
+                        value: `<@&${interaction.options.getRole("role")!.id}>`,
                     },
                     {
                         name: "Deleted By",
                         value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
-                    },
+                    }
                 ]
             })
         ])
     }
 
     override name(): string {
-        return "deletegroup";
+        return "removerole";
     }
 
     override description(): string {
-        return "Delete a group. THIS WILL DELETE ALL LINKS IN THE GROUP!";
+        return "Remove a custom role. IRREVERSIBLE!";
     }
 
     override options(): CommandOption[] {
         return [
             {
-                name: "name",
-                description: "The name of the group internally",
-                type: ApplicationCommandOptionType.String,
+                name: "role",
+                description: "The role you want to remove",
+                type: ApplicationCommandOptionType.Role,
                 required: true
             }
         ]

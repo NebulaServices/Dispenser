@@ -15,7 +15,7 @@ export default class extends Command {
 
         let msg = await interaction.channel!.send({
             embeds: [
-                Utils.getEmbed(0x702963, {
+                Utils.getEmbed(0x814fff, {
                     title: "Dispenser",
                     description: "Click the buttons below to dispense items.",
                 })

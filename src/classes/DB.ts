@@ -154,21 +154,13 @@ export default class DB {
         // get the usage per user
         let usagePerUser = server.serverSettings!.usagePerUser;
 
-        // if there is a role in the roleIds array that exists in the server, use that limit
-        let roleLimit: number | null = null;
         for (let roleId of roleIds) {
             let role = server.roles.find((role) => role.roleId == roleId);
-            if (role) {
-                roleLimit = role.specialLimit;
-                break;
+            if (role && role.specialLimit && role.specialLimit > (usagePerUser ?? 0)) {
+                usagePerUser = role.specialLimit;
             }
         }
 
-        if (roleLimit) {
-            usagePerUser = roleLimit;
-        }
-
-        // if the user has used all their domains, return null
         if (userUsageCount >= usagePerUser!) {
             return {
                 text: `You have hit the monthly limit of ${server.serverSettings!.usagePerUser} Dispenses. Wait until next month to get more!`,
@@ -241,6 +233,9 @@ export default class DB {
        if (!domainRegex.test(domain)) {
            throw new Error(`Domain ${domain} is not valid.`);
        }
+       if (domain.startsWith(`https://`)) {
+              domain = domain.replace(`https://`, ``);
+       }
        let domainGroup = await prisma.domainGroup.findFirst({
               where: {
                   groupId: groupId,
@@ -253,7 +248,7 @@ export default class DB {
        if (!domainGroup) throw new Error(`Domain group ${groupId} doesn't exist.`);
        let domains = domainGroup.domains;
        if (domains.find((d) => d.domainName == domain)) {
-           throw new Error(`Domain ${domain} already exists in group ${groupId}.`);
+           throw new Error(`Domain ${domain} already exists in group \`${groupId}\`.`);
        }
        await prisma.domain.create({
            data: {
@@ -280,10 +275,10 @@ export default class DB {
                 domains: true
               }
          })
-         if (!domainGroup) throw new Error(`Domain group ${groupId} doesn't exist.`);
+         if (!domainGroup) throw new Error(`Domain group \`${groupId}\` doesn't exist.`);
          let domains = domainGroup.domains;
          if (!domains.find((d) => d.domainName == domain)) {
-              throw new Error(`Domain ${domain} doesn't exist in group ${groupId}.`);
+              throw new Error(`Domain ${domain} doesn't exist in group \`${groupId}\`.`);
          }
          await prisma.domain.deleteMany({
               where: {
@@ -386,7 +381,7 @@ export default class DB {
        }
        let groups = server.domainGroups;
        if (groups.find((group) => group.groupId == groupName)) {
-           throw new Error(`Group ${groupName} already exists.`)
+           throw new Error(`Group \`${groupName}\` already exists.`)
        }
        if (groups.length >= 5) {
            throw new Error(`You can only have 5 groups per server.`) // only 5 groups per server until we do multiple actionrows // TODO: multiple actionrows
@@ -412,7 +407,7 @@ export default class DB {
                 }
        })
        if (!group) {
-           throw new Error(`Group ${groupName} doesn't exist.`)
+           throw new Error(`Group \`${groupName}\` doesn't exist.`)
        }
        return prisma.domainGroup.deleteMany({
            where: {
@@ -426,11 +421,20 @@ export default class DB {
         return prisma.domainGroup.findMany({
             where: {
                 serverId: serverId
+            },
+            select: {
+                groupId: true,
+                domains: true,
+                buttonType: true,
+                buttonLabel: true,
+                buttonEmoji: true,
+                createdBy: true,
+                updatedBy: true,
             }
         })
     }
 
-    static async createRole (serverId: string, roleId: string, specialLimit: number): Promise<any> { // TODO: work on this!
+    static async createRole (serverId: string, roleId: string, specialLimit: number): Promise<any> {
         let server = await prisma.server.findFirst({
             where: {
                 serverId: serverId
@@ -445,13 +449,35 @@ export default class DB {
         }
         let role = server.roles.find((r) => r.roleId == roleId);
         if (role) {
-            throw new Error(`Role ${roleId} already exists.`)
+            throw new Error(`Role \`${roleId}\` already exists.`)
         }
 
         return prisma.role.create({
             data: {
                 roleId: roleId,
                 serverId: serverId,
+                specialLimit: specialLimit
+            }
+        })
+    }
+
+    static async removeRole (serverId: string, roleId: string): Promise<any> {
+        let role = await prisma.role.findFirst({
+            where: {
+                roleId: roleId,
+                serverId: serverId
+            },
+            select: {
+                roleId: true
+            }
+        })
+        if (!role) {
+            throw new Error(`Role \`${roleId}\` doesn't exist.`)
+        }
+        return prisma.role.deleteMany({
+            where: {
+                roleId: roleId,
+                serverId: serverId
             }
         })
     }
