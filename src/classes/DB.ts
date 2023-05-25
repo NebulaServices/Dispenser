@@ -343,18 +343,38 @@ export default class DB {
     }
 
     static async banUser (userId: string, serverId: string): Promise <any> {
-        return prisma.user.updateMany({
+       let s = await prisma.user.findFirst({
+                where: {
+                    userId: userId,
+                    serverId: serverId
+                },
+                select: {
+                    banned: true
+                }
+       })
+       if (s?.banned) throw new Error(`User is already banned.`);
+       return prisma.user.updateMany({
+           where: {
+               userId: userId,
+               serverId: serverId
+           },
+           data: {
+               banned: true
+           }
+       })
+    }
+
+    static async unbanUser (userId: string, serverId: string): Promise <any> {
+        let s = await prisma.user.findFirst({
             where: {
                 userId: userId,
                 serverId: serverId
             },
-            data: {
+            select: {
                 banned: true
             }
         })
-    }
-
-    static async unbanUser (userId: string, serverId: string): Promise <any> {
+        if (!s?.banned) throw new Error(`User is not banned.`);
         return prisma.user.updateMany({
             where: {
                 userId: userId,

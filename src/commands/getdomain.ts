@@ -77,11 +77,11 @@ export default class extends Command {
                             },
                             {
                                 name: "Error",
-                                value: response.text
+                                value: response.text ?? "Unknown"
                             },
                             {
                                 name: "Group",
-                                value: interaction.options.getString('group') as string
+                                value: interaction.options.getString('group') as string ?? "Unknown"
                             }
                         ]
                     })

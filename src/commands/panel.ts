@@ -29,6 +29,19 @@ export default class extends Command {
         await interaction.editReply({
             content: `Panel Created! \[[Link](\<${msg.url}\>)\]`,
         })
+
+        await Utils.sendWebhook(interaction.guildId!, 2, [
+            Utils.getEmbed(0x814fff, {
+                title: `Panel Created`,
+                fields: [
+                    {
+                        name: "Created By",
+                        value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
+                    }
+                    ],
+                description: `[Link](\<${msg.url}\>)`,
+            })
+        ])
     }
 
     override name(): string {
