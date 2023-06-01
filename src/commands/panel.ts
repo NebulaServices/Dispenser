@@ -6,12 +6,13 @@ import DB from "../classes/DB";
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
-        //let groups = await DB.getGroups(interaction.guild!.id);
-        let row: any[] = [];
-        //for (let i = 0; i < groups.length; i++) {
-        //    row.push(bot.getButton("paneldispensebtn")?.build([interaction.guild!.id, groups[i].name!])!)
-        //}
-        row.push(bot.getButton("panelreportbtn")?.build([(await DB.doesReportWebhookUrlExist(interaction.guild!.id)).reports ? "false" : "true" ])!)
+        let groups = await DB.getGroups(interaction.guild!.id);
+        let row: ButtonBuilder[] = [];
+        console.log(groups)
+        for (const group of groups) {
+            row.push(await bot.getButton("paneldispensebtn", [group.groupId])?.build([group.groupId, group.buttonLabel, group.buttonType, group.buttonEmoji])!)
+        }
+        row.push(await bot.getButton("panelreportbtn")?.build([(await DB.doesReportWebhookUrlExist(interaction.guild!.id)).reports ? "false" : "true" ])!)
 
         let msg = await interaction.channel!.send({
             embeds: [

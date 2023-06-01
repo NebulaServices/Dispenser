@@ -43,7 +43,7 @@ export default class extends ContextMenu {
     }
 
     override name(): string {
-        return "Unban User";
+        return "Unban";
     }
 
     override type(): ContextMenuCommandType {

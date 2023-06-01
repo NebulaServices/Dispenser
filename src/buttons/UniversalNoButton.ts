@@ -2,11 +2,11 @@ import { Button, Bot } from "../classes/Bot";
 import {ButtonInteraction, ButtonStyle, ButtonBuilder} from "discord.js";
 
 export default class extends Button {
-    override build(): ButtonBuilder {
+    override async build(): Promise<ButtonBuilder> {
         return new ButtonBuilder()
             .setLabel("No")
             .setStyle(ButtonStyle.Danger)
-            .setCustomId(this.id());
+            .setCustomId(await this.id());
     }
 
     override id(): string {

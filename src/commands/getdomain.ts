@@ -132,6 +132,7 @@ export default class extends Command {
                             ]
                         })
                     ])
+                    
                 } catch (e) {
                     console.log(e);
                     await interaction.editReply({

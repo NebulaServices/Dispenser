@@ -5,7 +5,7 @@ import {ButtonBuilder, ButtonInteraction, ButtonStyle} from "discord.js";
 export default class extends Button {
 
     // write a build override that disables the button if !DB.doesReporeWebhookExist(interaction.guildId!)
-    override build(args: string[]): ButtonBuilder {
+    override async build(args: string[]): Promise<ButtonBuilder> {
         let builder = new ButtonBuilder()
         if (args[0] == "true") {
             builder.setDisabled(true);
@@ -14,7 +14,7 @@ export default class extends Button {
         builder
             .setLabel("Send a report")
             .setStyle(ButtonStyle.Danger)
-            .setCustomId(this.id());
+            .setCustomId(await this.id());
 
         return builder;
     }

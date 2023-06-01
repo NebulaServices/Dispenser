@@ -7,14 +7,18 @@ import Utils from "../classes/Utils";
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
+        if (!/^[a-z0-9]{1,15}$/i.test(interaction.options.getString("name")! as string)) {
+            await interaction.editReply(`Invalid group name. (Must under characters long, and only contain letters and numbers)`);
+            return;
+        }
         if (!/[\w\d\s]{1,80}/.test(interaction.options.getString("label")! as string)) {
             await interaction.editReply(`Invalid group name.`);
             return;
         }
-        if (!/<a?:[a-zA-Z0-9_]+:[0-9]{18}>|<:[a-zA-Z0-9_]+:[0-9]{18}>/.test(interaction.options.getString("emoji")! as string) && interaction.options.getString("emoji")) {
-            await interaction.editReply(`Invalid emoji.`);
-            return;
-        }
+        //if (!/<a?:[a-zA-Z0-9_]+:[0-9]{18}>|<:[a-zA-Z0-9_]+:[0-9]{18}>/.test(interaction.options.getString("emoji")! as string) && interaction.options.getString("emoji")) {
+        //    await interaction.editReply(`Invalid emoji.`);
+        //    return;
+        //}
         try {
             await DB.createGroup(interaction.guild!.id, interaction.options.getString("name")!, interaction.user.id,
                 {
@@ -50,7 +54,7 @@ export default class extends Command {
                     },
                     {
                         name: "Group Emoji",
-                        value: interaction.options.getString("emoji")! ? interaction.options.getString("emoji")! : "None",
+                        value: interaction.options.getString("emoji")! ?? "None",
                     },
                 ]
             })

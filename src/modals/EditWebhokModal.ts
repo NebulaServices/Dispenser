@@ -60,7 +60,13 @@ export default class extends Modal {
         return "configeditwebhookmdl";
     }
 
-    override build(args: string[]): ModalBuilder {
+    override async build(args: string[]): Promise<ModalBuilder> {
+        let server;
+        try {
+            if (args[0]) {
+                server = await DB.getWebhookUrls(args[0]);
+            }
+        } catch (e) {}
         return new ModalBuilder()
             .setCustomId(this.id())
             .setTitle(this.name())
@@ -71,7 +77,7 @@ export default class extends Modal {
                             .setCustomId('reportWebhookInput')
                             .setLabel('Reports Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
-                            .setValue('')
+                            .setValue(server?.reports || '')
                             .setStyle(TextInputStyle.Short)
                             .setRequired(false)
                     ),
@@ -81,7 +87,7 @@ export default class extends Modal {
                             .setCustomId('logWebhookInput')
                             .setLabel('Logging Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
-                            .setValue('')
+                            .setValue(server?.logs || '')
                             .setStyle(TextInputStyle.Short)
                             .setRequired(false)
                     )

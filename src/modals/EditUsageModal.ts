@@ -56,7 +56,13 @@ export default class extends Modal {
         return "configeditusagemdl";
     }
 
-    override build(args: string[]): ModalBuilder {
+    override async build(args: string[]): Promise<ModalBuilder> {
+        let usage;
+        try {
+            if (args[0]) {
+                usage = await DB.getServerUsage(args[0]);
+            }
+        } catch (e) {}
         return new ModalBuilder()
             .setCustomId(this.id())
             .setTitle(this.name())
@@ -67,6 +73,7 @@ export default class extends Modal {
                             .setCustomId('usageInput')
                             .setLabel('Usage')
                             .setPlaceholder('1-99')
+                            .setValue(usage.toString() || "")
                             .setStyle(TextInputStyle.Short)
                             .setRequired(true)
                     )

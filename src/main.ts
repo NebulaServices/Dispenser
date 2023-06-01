@@ -15,7 +15,6 @@
 import { Bot } from './classes/Bot';
 import { ActivityType } from 'discord.js';
 
-const bot = new Bot(process.env.TOKEN as never, { intents: ["GuildMessages", "Guilds", "GuildMessageReactions", "MessageContent"] });
-bot.showStatus("dnd", {name: "in a competition !", type: ActivityType.Competing})
+new Bot(process.env.TOKEN as never, { intents: ["GuildMessages", "Guilds", "GuildMessageReactions", "MessageContent"]}, "online", { type: ActivityType.Watching, name: "for new links" });
 
-Reflect.deleteProperty(process.env, 'TOKEN');
+//Reflect.deleteProperty(process.env, 'TOKEN');

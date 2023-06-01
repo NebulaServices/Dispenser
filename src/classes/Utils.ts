@@ -4,24 +4,24 @@ import DB from "./DB";
 
 
 export default class Utils {
-    static getEmbed(color: number, s: { title?: string, description?: string, imageURL?: string, author?: { name: string, iconURL: string }, fields?: { name: string, value: string, inline?: boolean }[] }): EmbedBuilder {
+    static getEmbed(color: number, data: { title?: string, description?: string, imageURL?: string, author?: { name: string, iconURL: string }, fields?: { name: string, value: string, inline?: boolean }[] }): EmbedBuilder {
         let embed = new EmbedBuilder()
 
-        if (s.title) embed.setTitle(s.title);
-        if (s.description) embed.setDescription(s.description);
+        if (data.title) embed.setTitle(data.title);
+        if (data.description) embed.setDescription(data.description);
         if (Bot.client.user && Bot.client) {
             embed.setFooter({
                 text: Bot.client.user.username,
                 iconURL: Bot.client.user.avatarURL()!
             });
         }
-        if (s.imageURL) embed.setImage(s.imageURL);
-        if (s.author) embed.setAuthor({
-            name: s.author.name,
-            iconURL: s.author.iconURL
+        if (data.imageURL) embed.setImage(data.imageURL);
+        if (data.author) embed.setAuthor({
+            name: data.author.name,
+            iconURL: data.author.iconURL
         });
-        if (s.fields) {
-            for (let field of s.fields) {
+        if (data.fields) {
+            for (let field of data.fields) {
                 embed.addFields({
                     name: field.name,
                     value: field.value,
@@ -37,14 +37,14 @@ export default class Utils {
         let urls = await DB.getWebhookUrls(guildId)
         switch (type) {
             case 1: {
-                if (!urls.reports) throw new Error("No reports webhook");
+                if (!urls.reports) return;
                 const webhookClient = new WebhookClient({ url: urls.reports });
                 await webhookClient.send({
                     embeds: embeds
                 })
             } break;
             case 2: {
-                if (!urls.logs) throw new Error("No logs webhook");
+                if (!urls.logs) return;
                 const webhookClient = new WebhookClient({ url: urls.logs });
                 await webhookClient.send({
                     embeds: embeds
@@ -55,4 +55,34 @@ export default class Utils {
             }
         }
     }
+
+    static splitMessage(text: string, { maxLength = 2_000, char = '\n', prepend = '', append = '' } = {}): string[] {
+        if (text.length <= maxLength) return [text];
+        let splitText = [text];
+        if (Array.isArray(char)) {
+            while (char.length > 0 && splitText.some(elem => elem.length > maxLength)) {
+                const currentChar = char.shift();
+                if (currentChar instanceof RegExp) {
+                    splitText = splitText.flatMap(chunk => chunk.split(currentChar).filter(Boolean));
+                } else {
+                    splitText = splitText.flatMap(chunk => chunk.split(currentChar));
+                }
+            }
+        } else {
+            splitText = text.split(char);
+        }
+        if (splitText.some(elem => elem.length > maxLength)) throw new RangeError('SPLIT_MAX_LEN');
+        const messages = [];
+        let msg = '';
+        for (const chunk of splitText) {
+            if (msg && (msg + char + chunk + append).length > maxLength) {
+                messages.push(msg + append);
+                msg = prepend;
+            }
+            msg += (msg && msg !== prepend ? char : '') + chunk;
+        }
+        return messages.concat(msg).filter(m => m);
+    }
+
+
 }

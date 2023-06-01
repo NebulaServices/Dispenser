@@ -8,10 +8,23 @@ import {
     TextInputStyle
 } from "discord.js";
 import Utils from "../classes/Utils";
+import DB from "../classes/DB";
 
 export default class extends Modal {
     override async run(interaction: ModalSubmitInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
+        let usr = await DB.getUser(interaction.user.id, interaction.guildId!)
+        if (usr.banned) {
+            await interaction.editReply({
+                embeds: [
+                    Utils.getEmbed(0xff0000, {
+                        title: "Unable to submit report",
+                        description: "You are banned."
+                    })
+                ]
+            });
+            return;
+        }
         try {
             await Utils.sendWebhook(interaction.guildId!, 1, [
                 Utils.getEmbed(0xff0000, {
@@ -69,7 +82,7 @@ export default class extends Modal {
         return "reportmdl";
     }
 
-    override build(): ModalBuilder {
+    override async build(): Promise<ModalBuilder> {
         return new ModalBuilder()
             .setCustomId(this.id())
             .setTitle(this.name())

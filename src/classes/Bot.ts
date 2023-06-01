@@ -18,8 +18,8 @@ import {
     SlashCommandBuilder, UserContextMenuCommandInteraction
 } from "discord.js";
 
-
 dotenv.config();
+
 export type Undefinable<T> = T | undefined;
 
 function addOptions (option: CommandOption, cmd: SlashCommandBuilder) {
@@ -37,6 +37,24 @@ function addOptions (option: CommandOption, cmd: SlashCommandBuilder) {
             }
             else {
                 cmd.addStringOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));
+            }
+            break;
+        }
+        case ApplicationCommandOptionType.Subcommand: {
+            cmd.addSubcommand(out => out.setName(option.name).setDescription(option.description));
+            if (option.options) {
+                for (let suboption of option.options) {
+                    addOptions(suboption, cmd);
+                }
+            }
+            break;
+        }
+        case ApplicationCommandOptionType.SubcommandGroup: {
+            cmd.addSubcommandGroup(out => out.setName(option.name).setDescription(option.description));
+            if (option.options) {
+                for (let suboption of option.options) {
+                    addOptions(suboption, cmd);
+                }
             }
             break;
         }
@@ -105,7 +123,7 @@ async function getCommands(): Promise<Command[]> {
     let commands: Command[] = [];
 
     for (let file of fs.readdirSync(`./src/commands/`).filter(file => file.endsWith(".ts"))) {
-        let imports = await import(`../commands/${file}`);
+        const imports = await import(`../commands/${file}`);
 
         let command = new imports.default();
         commands.push(command);
@@ -199,20 +217,21 @@ export abstract class ContextMenu {
 export abstract class Button {
     abstract run(interaction: ButtonInteraction, bot: Bot): Promise<void>;
 
-    abstract build(args?: string[]): ButtonBuilder;
-    abstract id(): string;
+    abstract build(args?: string[]): Promise<ButtonBuilder>;
+    abstract id(args?: string[]): string;
 }
+
 
 export abstract class Modal {
     abstract run(interaction: ModalSubmitInteraction, bot: Bot): Promise<void>;
     abstract name(): string;
-
-    abstract build(args?: string[]): ModalBuilder;
+    abstract build(args?: string[]): Promise<ModalBuilder>;
     abstract id(): string;
 }
 
+
 export class Bot {
-    constructor(token: string, intents: ClientOptions) {
+    constructor(token: string, intents: ClientOptions, status: PresenceStatusData, activity: ActivityOptions) {
         this.client = new Client(intents);
         Bot.client = this.client;
         this.initCommands();
@@ -221,43 +240,64 @@ export class Bot {
             if (interaction.isChatInputCommand()) {
                 const command: Undefinable<Command> = this.commands.find(command => command.name() === interaction.commandName);
                 if (command) {
-                    await command.run(interaction, this);
+                    command
+                        .run(interaction, this)
+                        .catch((error) => {
+                            console.error("Error executing command:", error);
+                            interaction.reply("An error occurred while executing the command.");
+                        });
                 } else {
-                    await interaction.reply("Command not found");
+                    interaction.reply("Command not found");
                 }
             } else if (interaction.isUserContextMenuCommand() || interaction.isMessageContextMenuCommand()) {
                 const menu: Undefinable<ContextMenu> = this.ctxmenus.find(menu => menu.name() === interaction.commandName);
 
                 if (menu) {
-                    await menu.run(interaction, this);
+                    menu
+                        .run(interaction, this)
+                        .catch((error) => {
+                            console.error("Error executing menu:", error);
+                            interaction.reply("An error occurred while executing the context menu.");
+                        });
                 } else {
-                    await interaction.reply("Menu not found");
+                    interaction.reply("Menu not found");
                 }
-            } else if (interaction.isButton()) {
-                const button: Undefinable<Button> = this.buttons.find(button => button.id() === interaction.customId);
-
+            }  else if (interaction.isButton()) {
+                const button: Undefinable<Button> = this.buttons.find((button) => button.id().startsWith(interaction.customId.split("-")[0]!));
                 if (button) {
-                    await button.run(interaction, this);
+                    button
+                        .run(interaction, this)
+                        .catch((error) => {
+                            console.error("Error executing button:", error);
+                            interaction.reply("An error occurred while executing the button.");
+                        });
                 } else {
-                    await interaction.reply("Button not found");
+                    interaction.reply("Button not found");
                 }
             } else if (interaction.isModalSubmit()) {
-                const modal: Undefinable<Modal> = this.modals.find(modal => modal.id() === interaction.customId);
+                const modal: Undefinable<Modal> = this.modals.find((modal) => modal.id() === interaction.customId);
 
                 if (modal) {
-                    await modal.run(interaction, this);
+                    modal
+                        .run(interaction, this)
+                        .catch((error) => {
+                            console.error("Error executing modal:", error);
+                            interaction.reply("An error occurred while executing the modal.");
+                        });
                 } else {
-                    await interaction.reply("Modal not found");
+                    interaction.reply("Modal not found");
                 }
             }
         });
 
         this.client.login(token);
+
+        this.client.on("ready", async () => {
+            await this.client.user?.setPresence({ status: status, activities: [activity] });
+        })
     }
 
-    public async showStatus (status: PresenceStatusData, activity: ActivityOptions): Promise<void> {
-        await this.client.user?.setPresence({ status, activities: [activity] });
-    }
+
 
     public async initCommands(): Promise<void> {
         this.commands = await getCommands();
@@ -266,8 +306,8 @@ export class Bot {
         this.modals = await getModals();
     }
 
-    getButton(id: string): Undefinable<Button> {
-        return this.buttons.find(button => button.id() === id);
+    getButton (id: string, args?: string[]): Undefinable<Button> {
+        return this.buttons.find(button => button.id(args)?.startsWith(id));
     }
 
     getModal (id: string): Undefinable<Modal> {

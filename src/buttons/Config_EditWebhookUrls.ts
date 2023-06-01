@@ -2,11 +2,11 @@ import { Button, Bot } from "../classes/Bot";
 import { ButtonInteraction, ButtonStyle, ButtonBuilder } from "discord.js";
 
 export default class extends Button {
-    override build(): ButtonBuilder {
+    override async build(): Promise<ButtonBuilder> {
         return new ButtonBuilder()
             .setLabel("Edit Webhook URLs")
             .setStyle(ButtonStyle.Primary)
-            .setCustomId(this.id());
+            .setCustomId(await this.id());
     }
 
     override id(): string {
@@ -14,7 +14,7 @@ export default class extends Button {
     }
 
     override async run (interaction: ButtonInteraction, bot: Bot): Promise<void> {
-        await interaction.showModal(bot.getModal("configeditwebhookmdl")!.build([interaction.guild!.id]));
+        await interaction.showModal(await bot.getModal("configeditwebhookmdl")!.build([interaction.guild!.id]));
     }
 
 }
