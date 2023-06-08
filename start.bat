@@ -9,7 +9,7 @@ echo "          /_/                                  "
 echo "          by Nebula Services"
 
 rem Step 2
-icacls C:\Program Files /grant %username%:F /T /Q
+rem icacls C:\Program Files /grant %username%:F /T /Q
 
 rem Step 3
 echo "Downloading and installing dependencies and packages"
