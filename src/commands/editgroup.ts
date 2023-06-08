@@ -21,41 +21,41 @@ export default class extends Command {
         }
 
         try {
-            await DB.createGroup(interaction.guild!.id, interaction.options.getString("name")!, interaction.user.id,
+            await DB.editGroup(interaction.guild!.id, interaction.options.getString("name")!, interaction.user.id,
                 {
-                    label: interaction.options.getString("label")!,
-                    style: interaction.options.getString("style")! as ButtonType,
-                    emoji: interaction.options.getString("emoji")!
-                }, interaction.options.getRole("role")?.id);
+                    label: interaction.options.getString("label")! ?? undefined,
+                    style: interaction.options.getString("style")! as ButtonType ?? undefined,
+                    emoji: interaction.options.getString("emoji")! ?? undefined
+                }, interaction.options.getRole("role")?.id ?? undefined);
         } catch (e) {
-            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to create group`, description: e!.toString() }) ] });
+            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to edit group`, description: e!.toString() }) ] });
             return;
         }
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Created group \`${interaction.options.getString("name")}\`.`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Edited group \`${interaction.options.getString("name")}\`.`}) ]});
 
         await Utils.sendWebhook(interaction.guildId!, 2, [
             Utils.getEmbed(0x814fff, {
-                title: `Group Created`,
+                title: `Group Edited`,
                 fields: [
                     {
                         name: "Group Name",
                         value: interaction.options.getString("name")!,
                     },
                     {
-                        name: "Created By",
+                        name: "Edited By",
                         value: `<@${interaction.user.id}> (${interaction.user.tag} | ${interaction.user.id})`,
                     },
                     {
                         name: "Group Label",
-                        value: interaction.options.getString("label")!,
+                        value: interaction.options.getString("label")! ? interaction.options.getString("label")! : "None",
                     },
                     {
                         name: "Group Style",
-                        value: interaction.options.getString("style")!,
+                        value: interaction.options.getString("style")! ? interaction.options.getString("style")! : "None",
                     },
                     {
                         name: "Group Emoji",
-                        value: interaction.options.getString("emoji")! ?? "None",
+                        value: interaction.options.getString("emoji")! ? interaction.options.getString("emoji")! : "None",
                     },
                     {
                         name: "Required Role",
@@ -67,18 +67,18 @@ export default class extends Command {
     }
 
     override name(): string {
-        return "creategroup";
+        return "editgroup";
     }
 
     override description(): string {
-        return "Create a new link group";
+        return "Edit a domain group";
     }
 
     override options(): CommandOption[] {
         return [
             {
                 name: "name",
-                description: "The name of the group internally",
+                description: "The name of the group",
                 type: ApplicationCommandOptionType.String,
                 required: true
             },
@@ -86,7 +86,7 @@ export default class extends Command {
                 name: "label",
                 description: "The text to display on the button",
                 type: ApplicationCommandOptionType.String,
-                required: true
+                required: false
             },
             {
                 name: "style",
@@ -110,7 +110,7 @@ export default class extends Command {
                         value: "DANGER"
                     }
                 ],
-                required: true
+                required: false
             },
             {
                 name: "emoji",
@@ -133,5 +133,4 @@ export default class extends Command {
             adminRole: true,
         }
     }
-
 }

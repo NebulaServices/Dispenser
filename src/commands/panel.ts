@@ -1,31 +1,43 @@
 import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
-import { ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction} from "discord.js";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ChatInputCommandInteraction
+} from "discord.js";
 import Utils from "../classes/Utils";
 import DB from "../classes/DB";
 
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
-        await interaction.deferReply({ephemeral: true});
+        await interaction.deferReply({ ephemeral: true });
         let groups = await DB.getGroups(interaction.guild!.id);
-        let row: ButtonBuilder[] = [];
-        console.log(groups)
+        let rows: ActionRowBuilder<ButtonBuilder>[] = []; // Change variable name to "rows" instead of "row"
+        let buttons: ButtonBuilder[] = [];
+
         for (const group of groups) {
-            row.push(await bot.getButton("paneldispensebtn", [group.groupId])?.build([group.groupId, group.buttonLabel, group.buttonType, group.buttonEmoji])!)
+            buttons.push(await bot.getButton("paneldispensebtn", [group.groupId])?.build([group.groupId, group.buttonLabel, group.buttonType, group.buttonEmoji])!);
         }
-        row.push(await bot.getButton("panelreportbtn")?.build([(await DB.doesReportWebhookUrlExist(interaction.guild!.id)).reports ? "false" : "true" ])!)
+
+        if ((await DB.doesWebhookUrlsExist(interaction.guild!.id)).reports) {
+            buttons.push(await bot.getButton("panelreportbtn")?.build()!);
+        }
+
+        while (buttons.length > 0) {
+            const rowButtons = buttons.splice(0, 5);
+            rows.push(new ActionRowBuilder<ButtonBuilder>().addComponents(...rowButtons));
+        }
 
         let msg = await interaction.channel!.send({
             embeds: [
                 Utils.getEmbed(0x814fff, {
                     title: "Dispenser",
                     description: "Click the buttons below to dispense items.",
-                })
+                }),
             ],
-            components: [
-                new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents(...row)
-            ]
-        })
+            components: rows,
+        });
+
+
 
         await interaction.editReply({
             content: `Panel Created! \[[Link](\<${msg.url}\>)\]`,
@@ -61,6 +73,7 @@ export default class extends Command {
     override permissions(): CommandPermissions {
         return {
             dmUsable: false,
+            adminRole: true,
         }
     }
 }

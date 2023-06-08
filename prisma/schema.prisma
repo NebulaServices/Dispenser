@@ -21,24 +21,25 @@ model server {
 }
 
 model domainGroup {
-  groupId     String    @id @default(uuid())
-  createdAt   DateTime? @default(now())
-  createdBy   String?
-  updatedAt   DateTime? @updatedAt
-  updatedBy   String?
-  server      server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
-  serverId    String
-  domains     domain[]
-  buttonEmoji String?
-  buttonLabel String?
-  buttonType  BUTTON?
+  groupId        String    @id @default(uuid())
+  createdAt      DateTime? @default(now())
+  createdBy      String?
+  updatedAt      DateTime? @updatedAt
+  updatedBy      String?
+  server         server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId       String
+  domains        domain[]
+  buttonEmoji    String?
+  buttonLabel    String?
+  buttonType     BUTTON?
+  requiredRoleId String?
 
   @@index([serverId, groupId])
 }
 
 model domain {
-  domainName    String      @id
-  id            String      @default(uuid())
+  domainName    String
+  id            String      @id @default(uuid())
   createdAt     DateTime?   @default(now())
   createdBy     String?
   updatedAt     DateTime?   @updatedAt
@@ -55,32 +56,34 @@ model serverSettings {
   server            server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId          String   @id @unique
   logsWebhookUrl    String?
-  logsEnabled       Boolean  @default(false)
+  logsEnabled       Boolean  @default(false) // Implement later
   reportsWebhookUrl String?
-  reportsEnabled    Boolean  @default(false)
+  reportsEnabled    Boolean  @default(false) // also implement later
   usagePerUser      Int      @default(1)
 }
 
 model user {
-  userId      String   @id
-  createdAt   DateTime @default(now())
+  userId      String
+  id          String    @id @default(uuid())
+  createdAt   DateTime? @default(now())
   createdBy   String?
-  updatedAt   DateTime @updatedAt
-  server      server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  updatedAt   DateTime? @updatedAt
+  server      server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId    String
   usedDomains String[]
-  usageCount  Int      @default(0)
-  banned      Boolean? @default(false)
+  usageCount  Int       @default(0)
+  banned      Boolean?  @default(false)
 }
 
 model role {
-  roleId       String   @id @unique
-  createdAt    DateTime @default(now())
+  roleId       String    @id @unique
+  createdAt    DateTime? @default(now())
   createdBy    String?
-  updatedAt    DateTime @updatedAt
-  server       server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  updatedAt    DateTime? @updatedAt
+  server       server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
   serverId     String
   specialLimit Int?
+  adminRole    Boolean?  @default(false)
 }
 
 enum BUTTON {

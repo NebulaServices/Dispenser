@@ -1,8 +1,10 @@
 import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
-import {ApplicationCommandOptionType, ChatInputCommandInteraction, /*PermissionsBitField*/} from "discord.js";
+import {
+    ApplicationCommandOptionType,
+    ChatInputCommandInteraction,
+} from "discord.js";
 import DB from "../classes/DB";
 import Utils from "../classes/Utils";
-
 
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
@@ -15,6 +17,8 @@ export default class extends Command {
             return;
         }
         await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Removed role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
+
+        await bot.setAdminRoles();
 
         await Utils.sendWebhook(interaction.guild!.id, 2, [
             Utils.getEmbed(0x814fff, {
@@ -55,7 +59,8 @@ export default class extends Command {
     override permissions(): CommandPermissions {
         return {
             dmUsable: false,
-            //permissions: PermissionsBitField.Flags.ManageGuild,
+            adminRole: true,
+            adminPermissionBypass: true,
         }
     }
 

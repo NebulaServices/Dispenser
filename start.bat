@@ -29,4 +29,4 @@ npm run build
 
 rem Step 7
 echo "Starting Dispenser" 
-npm start
+npm run ts

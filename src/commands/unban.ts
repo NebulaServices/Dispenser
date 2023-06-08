@@ -62,7 +62,8 @@ export default class extends Command {
     }
     override permissions(): CommandPermissions {
         return {
-
+            dmUsable: false,
+            adminRole: true,
         }
     }
 }

@@ -2,7 +2,6 @@ import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
 import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
-    /*PermissionsBitField*/
 } from "discord.js";
 import DB from "../classes/DB";
 import Utils from "../classes/Utils";
@@ -10,9 +9,9 @@ import Utils from "../classes/Utils";
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
-        let domain = interaction.options.getString("domain")!;
+        let domain = interaction.options.getString("link")!;
         try {
-            await DB.createDomain(interaction.guildId!, interaction.user.id, interaction.options.getString("domain")!, interaction.options.getString("group")!);
+            await DB.createDomain(interaction.guildId!, interaction.user.id, interaction.options.getString("link")!, interaction.options.getString("group")!);
         } catch (e) {
             await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to add the link`, description: e!.toString() }) ] });
             return;
@@ -25,7 +24,7 @@ export default class extends Command {
                 fields: [
                     {
                         name: "Link",
-                        value: interaction.options.getString("domain")!,
+                        value: interaction.options.getString("link")!,
                     },
                     {
                         name: "Group",
@@ -50,24 +49,25 @@ export default class extends Command {
     }
 
     override options(): CommandOption[] {
-        return [{
-            name: "domain",
-            description: "The domain to add",
-            type: ApplicationCommandOptionType.String,
-            required: true
-        },
+        return [
         {
             name: "group",
             description: "The group to add the domain to",
             type: ApplicationCommandOptionType.String,
             required: true
-        }]
+        }, {
+            name: "link",
+            description: "The link to add",
+            type: ApplicationCommandOptionType.String,
+            required: true
+        }
+        ]
     }
 
     override permissions(): CommandPermissions {
         return {
             dmUsable: false,
-            //permissions: PermissionsBitField.Flags.ManageGuild,
+            adminRole: true
         }
     }
 

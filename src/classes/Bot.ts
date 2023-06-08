@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import fs from "fs";
-import {REST} from "@discordjs/rest";
+import { REST } from "@discordjs/rest";
 import {
     ActivityOptions,
     ApplicationCommandOptionType,
@@ -13,10 +13,14 @@ import {
     ContextMenuCommandType,
     MessageContextMenuCommandInteraction,
     ModalBuilder,
-    ModalSubmitInteraction, PresenceStatusData,
+    ModalSubmitInteraction,
+    PermissionsBitField,
+    PresenceStatusData,
     Routes,
-    SlashCommandBuilder, UserContextMenuCommandInteraction
+    SlashCommandBuilder,
+    UserContextMenuCommandInteraction
 } from "discord.js";
+import DB from "./DB";
 
 dotenv.config();
 
@@ -37,24 +41,6 @@ function addOptions (option: CommandOption, cmd: SlashCommandBuilder) {
             }
             else {
                 cmd.addStringOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));
-            }
-            break;
-        }
-        case ApplicationCommandOptionType.Subcommand: {
-            cmd.addSubcommand(out => out.setName(option.name).setDescription(option.description));
-            if (option.options) {
-                for (let suboption of option.options) {
-                    addOptions(suboption, cmd);
-                }
-            }
-            break;
-        }
-        case ApplicationCommandOptionType.SubcommandGroup: {
-            cmd.addSubcommandGroup(out => out.setName(option.name).setDescription(option.description));
-            if (option.options) {
-                for (let suboption of option.options) {
-                    addOptions(suboption, cmd);
-                }
             }
             break;
         }
@@ -113,31 +99,40 @@ async function init(): Promise<void> {
 
     console.log(`Successfully registered ${menus.length} message menus.`);
 
-    await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID!, process.env.GUILD_ID!), { body: registrars });
+    if (process.env.GUILD_ID) {
+        await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID!, process.env.GUILD_ID!), { body: registrars });
+    } else {
+        await rest.put(Routes.applicationCommands(process.env.CLIENT_ID!), { body: registrars });
+    }
+
 
 }
 
 init()
 
 async function getCommands(): Promise<Command[]> {
-    let commands: Command[] = [];
+    const commands: Command[] = [];
+    const commandFiles = fs.readdirSync('./src/commands/');
 
-    for (let file of fs.readdirSync(`./src/commands/`).filter(file => file.endsWith(".ts"))) {
-        const imports = await import(`../commands/${file}`);
-
-        let command = new imports.default();
-        commands.push(command);
-    }
-
-    for (let file of fs.readdirSync(`./src/commands/`).filter(file => fs.statSync(`./src/commands/${file}`).isDirectory())) {
-        for (let subfile of fs.readdirSync(`./src/commands/${file}`).filter(file => file.endsWith(".ts"))) {
-            let imports = await import(`../commands/${file}/${subfile}`);
-
-            let command = new imports.default();
+    const importPromises = commandFiles.map(async (file) => {
+        if (file.endsWith('.ts')) {
+            const imports = await import(`../commands/${file}`);
+            const command = new imports.default();
             commands.push(command);
+        } else if ((await fs.statSync(`./src/commands/${file}`)).isDirectory()) {
+            const subFiles = fs.readdirSync(`./src/commands/${file}`);
+            const subFilePromises = subFiles.map(async (subFile) => {
+                if (subFile.endsWith('.ts')) {
+                    const imports = await import(`../commands/${file}/${subFile}`);
+                    const command = new imports.default();
+                    commands.push(command);
+                }
+            });
+            await Promise.all(subFilePromises);
         }
-    }
+    });
 
+    await Promise.all(importPromises);
     return commands;
 }
 
@@ -191,6 +186,8 @@ export interface CommandOption {
 export interface CommandPermissions {
     dmUsable?: boolean;
     permissions?: bigint;
+    adminRole?: boolean;
+    adminPermissionBypass?: boolean;
 }
 
 
@@ -219,6 +216,7 @@ export abstract class Button {
 
     abstract build(args?: string[]): Promise<ButtonBuilder>;
     abstract id(args?: string[]): string;
+    abstract permissions(): CommandPermissions;
 }
 
 
@@ -240,12 +238,52 @@ export class Bot {
             if (interaction.isChatInputCommand()) {
                 const command: Undefinable<Command> = this.commands.find(command => command.name() === interaction.commandName);
                 if (command) {
-                    command
+                    if (this.cooldowns.has(interaction.user.id)) {
+                        const cooldown = this.cooldowns.get(interaction.user.id);
+                        if (cooldown!.time > Date.now() && cooldown!.command === command.name()) {
+                            const remainingTime = ((cooldown!.time - Date.now()) / 1000).toFixed(1);
+                            interaction.reply({
+                                content: `You must wait **${remainingTime}**s before using this command again.\nYour cooldown: **${parseInt(process.env.COOLDOWN_TIME!) / 1000}**s`,
+                                ephemeral: true,
+                            });
+                            return;
+                        }
+                    }
+
+                    if (command.permissions().adminRole) {
+                        const roles = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id)).roles.cache;
+                        if (!roles.some(role => this.adminRoles.get(interaction.guildId!)?.includes(role.id))) {
+                            if (command.permissions().adminPermissionBypass) {
+                                let member = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id));
+                                if (!member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                                    interaction.reply({ content: "This command is restricted to admin users, or users with admin permission.", ephemeral: true });
+                                    return;
+                                }
+                            } else {
+                                interaction.reply({ content: "This command is restricted to admin users.", ephemeral: true });
+                                return;
+                            }
+                        }
+                    }
+                    await command
                         .run(interaction, this)
                         .catch((error) => {
                             console.error("Error executing command:", error);
                             interaction.reply("An error occurred while executing the command.");
                         });
+
+                    const cooldownTime = process.env.COOLDOWN_TIME ? parseInt(process.env.COOLDOWN_TIME) : 1000;
+
+                    const cooldown = {
+                        time: Date.now() + cooldownTime,
+                        command: interaction.commandName,
+                    };
+
+                    this.cooldowns.set(interaction.user.id, cooldown);
+
+                    setTimeout(() => {
+                        this.cooldowns.delete(interaction.user.id);
+                    }, cooldownTime);
                 } else {
                     interaction.reply("Command not found");
                 }
@@ -253,6 +291,13 @@ export class Bot {
                 const menu: Undefinable<ContextMenu> = this.ctxmenus.find(menu => menu.name() === interaction.commandName);
 
                 if (menu) {
+                    if (menu.permissions().adminRole) {
+                        const roles = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id)).roles.cache;
+                        if (!roles.some(role => this.adminRoles.get(interaction.guildId!)?.includes(role.id))) {
+                            interaction.reply({ content: "This action is restricted to admin users.", ephemeral: true });
+                            return;
+                        }
+                    }
                     menu
                         .run(interaction, this)
                         .catch((error) => {
@@ -265,12 +310,42 @@ export class Bot {
             }  else if (interaction.isButton()) {
                 const button: Undefinable<Button> = this.buttons.find((button) => button.id().startsWith(interaction.customId.split("-")[0]!));
                 if (button) {
+                        if (this.cooldowns.has(interaction.user.id)) {
+                            const cooldown = this.cooldowns.get(interaction.user.id);
+                            if (cooldown!.time > Date.now()) {
+                                //const remainingTime = Math.ceil((cooldown!.time - Date.now()) / 1000);
+                                const remainingTime = ((cooldown!.time - Date.now()) / 1000).toFixed(1);
+                                interaction.reply({
+                                    content: `You must wait **${remainingTime}**s before using this button again.\nYour cooldown: **${parseInt(process.env.COOLDOWN_TIME!) / 1000}**s`,
+                                    ephemeral: true,
+                                });
+                                return;
+                            }
+                        }
+                    if (button.permissions().adminRole) {
+                        const roles = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id)).roles.cache;
+                        if (!roles.some(role => this.adminRoles.get(interaction.guildId!)?.includes(role.id))) {
+                            interaction.reply({ content: "This action is restricted to admin users.", ephemeral: true });
+                            return;
+                        }
+                    }
                     button
                         .run(interaction, this)
                         .catch((error) => {
                             console.error("Error executing button:", error);
                             interaction.reply("An error occurred while executing the button.");
                         });
+
+                    const cooldownTime = process.env.COOLDOWN_TIME ? parseInt(process.env.COOLDOWN_TIME) : 1000;
+                    const cooldown = {
+                        time: Date.now() + cooldownTime,
+                        command: interaction.customId.split("-")[0]!,
+                    };
+                    this.cooldowns.set(interaction.user.id, cooldown);
+
+                    setTimeout(() => {
+                        this.cooldowns.delete(interaction.user.id);
+                    }, cooldownTime);
                 } else {
                     interaction.reply("Button not found");
                 }
@@ -294,10 +369,13 @@ export class Bot {
 
         this.client.on("ready", async () => {
             await this.client.user?.setPresence({ status: status, activities: [activity] });
+            await this.setAdminRoles();
         })
     }
 
-
+    public async setAdminRoles(): Promise<void> {
+        this.adminRoles = await DB.getAdminRoles();
+    }
 
     public async initCommands(): Promise<void> {
         this.commands = await getCommands();
@@ -320,4 +398,6 @@ export class Bot {
     ctxmenus: ContextMenu[] = [];
     buttons: Button[] = [];
     modals: Modal[] = [];
+    adminRoles: Map<string, string[]> = new Map(); // guild id, role ids
+    cooldowns: Map<string, { command: string, time: number }> = new Map();
 }

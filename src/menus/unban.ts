@@ -54,6 +54,7 @@ export default class extends ContextMenu {
         return {
             //permissions: PermissionsBitField.Flags.BanMembers,
             dmUsable: false,
+            adminRole: true,
         }
     }
 }

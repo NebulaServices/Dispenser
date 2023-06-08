@@ -1,5 +1,9 @@
 import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
-import {ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction } from "discord.js";
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ChatInputCommandInteraction
+} from "discord.js";
 
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
@@ -31,6 +35,9 @@ export default class extends Command {
     }
 
     override permissions(): CommandPermissions {
-        return {}
+        return {
+            dmUsable: false,
+            adminRole: true
+        }
     }
 }

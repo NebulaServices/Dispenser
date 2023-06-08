@@ -1,4 +1,4 @@
-import { Button, Bot } from "../classes/Bot";
+import {Button, Bot, CommandPermissions} from "../classes/Bot";
 import {ButtonInteraction, ButtonStyle, ButtonBuilder} from "discord.js";
 
 export default class extends Button {
@@ -17,6 +17,12 @@ export default class extends Button {
         await interaction.deferUpdate();
         await interaction.deleteReply();
         await interaction.reply({content: "Action cancelled.", ephemeral: true});
+    }
+
+    override permissions(): CommandPermissions {
+        return {
+            adminRole: false
+        }
     }
 
 }

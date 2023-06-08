@@ -29,17 +29,20 @@ export default class Utils {
                 })
             }
         }
+
         embed.setColor(color);
+
         return embed;
     }
 
-    static async sendWebhook(guildId: string, type: 1 | 2, embeds: [EmbedBuilder]): Promise<void> {
+    static async sendWebhook(guildId: string, type: 1 | 2, embeds: [EmbedBuilder], content?: string): Promise<void> {
         let urls = await DB.getWebhookUrls(guildId)
         switch (type) {
             case 1: {
                 if (!urls.reports) return;
                 const webhookClient = new WebhookClient({ url: urls.reports });
                 await webhookClient.send({
+                    content: content,
                     embeds: embeds
                 })
             } break;
@@ -47,6 +50,7 @@ export default class Utils {
                 if (!urls.logs) return;
                 const webhookClient = new WebhookClient({ url: urls.logs });
                 await webhookClient.send({
+                    content: content,
                     embeds: embeds
                 })
             } break;

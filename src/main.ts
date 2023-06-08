@@ -10,6 +10,9 @@
                              \ \_\                                             \/___/
                               \/_/
 
+
+                                   A Nebula Service
+
  */
 
 import { Bot } from './classes/Bot';
@@ -17,4 +20,4 @@ import { ActivityType } from 'discord.js';
 
 new Bot(process.env.TOKEN as never, { intents: ["GuildMessages", "Guilds", "GuildMessageReactions", "MessageContent"]}, "online", { type: ActivityType.Watching, name: "for new links" });
 
-//Reflect.deleteProperty(process.env, 'TOKEN');
+// Reflect.deleteProperty(process.env, 'TOKEN');

@@ -91,8 +91,8 @@ export default class extends Command {
 
     override permissions(): CommandPermissions {
         return {
-            //permissions: PermissionsBitField.Flags.BanMembers,
-            dmUsable: false
+            dmUsable: false,
+            adminRole: true
         }
     }
 }
