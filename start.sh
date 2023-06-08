@@ -8,7 +8,7 @@ echo "   ___  _                                 ____
           /_/                                 
           by Nebula Services"
 # Step 2
-sudo chown -R $USER /usr/local/
+# sudo chown -R $USER /usr/local/
 
 # Step 3
 echo "Downloading and installing dependencies and packages"

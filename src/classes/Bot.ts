@@ -285,7 +285,7 @@ export class Bot {
                         this.cooldowns.delete(interaction.user.id);
                     }, cooldownTime);
                 } else {
-                    interaction.reply("Command not found");
+                    interaction.reply({ content: "Command not found", ephemeral: true });
                 }
             } else if (interaction.isUserContextMenuCommand() || interaction.isMessageContextMenuCommand()) {
                 const menu: Undefinable<ContextMenu> = this.ctxmenus.find(menu => menu.name() === interaction.commandName);
@@ -305,7 +305,7 @@ export class Bot {
                             interaction.reply("An error occurred while executing the context menu.");
                         });
                 } else {
-                    interaction.reply("Menu not found");
+                    interaction.reply({ content: "Menu not found", ephemeral: true });
                 }
             }  else if (interaction.isButton()) {
                 const button: Undefinable<Button> = this.buttons.find((button) => button.id().startsWith(interaction.customId.split("-")[0]!));
@@ -347,7 +347,7 @@ export class Bot {
                         this.cooldowns.delete(interaction.user.id);
                     }, cooldownTime);
                 } else {
-                    interaction.reply("Button not found");
+                    interaction.reply({ content: "Button not found", ephemeral: true });
                 }
             } else if (interaction.isModalSubmit()) {
                 const modal: Undefinable<Modal> = this.modals.find((modal) => modal.id() === interaction.customId);
