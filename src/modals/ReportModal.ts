@@ -1,4 +1,4 @@
-import { Modal, Bot } from "../classes/Bot";
+import {Modal, Bot, CommandPermissions} from "../classes/Bot";
 import {
     ActionRowBuilder,
     ModalActionRowComponentBuilder,
@@ -115,5 +115,11 @@ export default class extends Modal {
                             .setRequired(true)
                     ),
             )
+    }
+
+    override permissions(): CommandPermissions {
+        return {
+            adminRole: false
+        }
     }
 }

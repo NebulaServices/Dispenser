@@ -1,4 +1,4 @@
-import { Modal, Bot } from "../classes/Bot";
+import {Modal, Bot, CommandPermissions} from "../classes/Bot";
 import {
     ActionRowBuilder,
     ModalActionRowComponentBuilder,
@@ -58,11 +58,15 @@ export default class extends Modal {
 
     override async build(args: string[]): Promise<ModalBuilder> {
         let usage;
+
         try {
             if (args[0]) {
                 usage = await DB.getServerUsage(args[0]);
             }
-        } catch (e) {}
+        } catch (e) {
+            usage = 1;
+        }
+
         return new ModalBuilder()
             .setCustomId(this.id())
             .setTitle(this.name())
@@ -78,5 +82,11 @@ export default class extends Modal {
                             .setRequired(true)
                     )
             )
+    }
+
+    override permissions(): CommandPermissions {
+        return {
+            adminRole: true,
+        }
     }
 }
