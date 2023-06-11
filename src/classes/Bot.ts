@@ -17,7 +17,7 @@ import {
     PermissionsBitField,
     PresenceStatusData,
     Routes,
-    SlashCommandBuilder,
+    SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder,
     UserContextMenuCommandInteraction
 } from "discord.js";
 import DB from "./DB";
@@ -26,25 +26,41 @@ dotenv.config();
 
 export type Undefinable<T> = T | undefined;
 
-function addOptions (option: CommandOption, cmd: SlashCommandBuilder) {
+function addOptions (option: CommandOption, cmd: SlashCommandBuilder | SlashCommandSubcommandBuilder) {
     switch (option.type) {
-        case ApplicationCommandOptionType.Attachment:  { cmd.addAttachmentOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));  break; }
-        case ApplicationCommandOptionType.Boolean:     { cmd.addBooleanOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));     break; }
-        case ApplicationCommandOptionType.Channel:     { cmd.addChannelOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));     break; }
-        case ApplicationCommandOptionType.Integer:     { cmd.addIntegerOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));     break; }
-        case ApplicationCommandOptionType.Mentionable: { cmd.addMentionableOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!)); break; }
-        case ApplicationCommandOptionType.Role:        { cmd.addRoleOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));        break; }
-        case ApplicationCommandOptionType.User:        { cmd.addUserOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));        break; }
+        case ApplicationCommandOptionType.Attachment:  { cmd.addAttachmentOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false));  break; }
+        case ApplicationCommandOptionType.Boolean:     { cmd.addBooleanOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false));     break; }
+        case ApplicationCommandOptionType.Channel:     { cmd.addChannelOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false));     break; }
+        case ApplicationCommandOptionType.Integer:     { cmd.addIntegerOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false));     break; }
+        case ApplicationCommandOptionType.Mentionable: { cmd.addMentionableOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false)); break; }
+        case ApplicationCommandOptionType.Role:        { cmd.addRoleOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false));        break; }
+        case ApplicationCommandOptionType.User:        { cmd.addUserOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false));        break; }
         case ApplicationCommandOptionType.String: {
             if (option.choices) {
-                cmd.addStringOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!).addChoices(...<[]>option.choices));
+                cmd.addStringOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false).addChoices(...<[]>option.choices));
             }
             else {
-                cmd.addStringOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required!));
+                cmd.addStringOption(out => out.setName(option.name).setDescription(option.description).setRequired(option.required ?? false));
             }
             break;
         }
+
         default: break;
+    }
+}
+
+function addOptionsSubGroup (option: CommandOption, cmd: SlashCommandSubcommandGroupBuilder) {
+    switch (option.type) {
+        case ApplicationCommandOptionType.Subcommand: {
+            cmd.addSubcommand(sub => {
+                if (option.options) {
+                    for (let subOption of option.options) {
+                        addOptions(subOption, sub);
+                    }
+                }
+                return sub.setName(option.name).setDescription(option.description);
+            });
+        }
     }
 }
 
@@ -59,7 +75,31 @@ async function init(): Promise<void> {
         const cmd = new SlashCommandBuilder().setName(command.name()).setDescription(command.description());
 
         for (let option of command.options()) {
-            addOptions(option, cmd);
+            switch (option.type) {
+                case ApplicationCommandOptionType.Subcommand: {
+                    cmd.addSubcommand(sub => {
+                        if (option.options) {
+                            for (let subOption of option.options) {
+                                addOptions(subOption, sub);
+                            }
+                        }
+                        return sub.setName(option.name).setDescription(option.description);
+                    });
+                } break;
+                case ApplicationCommandOptionType.SubcommandGroup: {
+                    cmd.addSubcommandGroup(sub => {
+                        if (option.options) {
+                            for (let subOption of option.options) {
+                                addOptionsSubGroup(subOption, sub);
+                            }
+                        }
+                        return sub.setName(option.name).setDescription(option.description);
+                    });
+                } break;
+                default: {
+                    addOptions(option, cmd);
+                }
+            }
         }
 
         if (command.permissions().dmUsable) {
@@ -104,8 +144,6 @@ async function init(): Promise<void> {
     } else {
         await rest.put(Routes.applicationCommands(process.env.CLIENT_ID!), { body: registrars });
     }
-
-
 }
 
 init()
@@ -119,17 +157,21 @@ async function getCommands(): Promise<Command[]> {
             const imports = await import(`../commands/${file}`);
             const command = new imports.default();
             commands.push(command);
-        } else if ((await fs.statSync(`./src/commands/${file}`)).isDirectory()) {
-            const subFiles = fs.readdirSync(`./src/commands/${file}`);
-            const subFilePromises = subFiles.map(async (subFile) => {
-                if (subFile.endsWith('.ts')) {
-                    const imports = await import(`../commands/${file}/${subFile}`);
-                    const command = new imports.default();
-                    commands.push(command);
-                }
-            });
-            await Promise.all(subFilePromises);
         }
+
+        // This code works, but unneeded rn
+
+        // } else if ((await fs.statSync(`./src/commands/${file}`)).isDirectory()) {
+        //     const subFiles = fs.readdirSync(`./src/commands/${file}`);
+        //     const subFilePromises = subFiles.map(async (subFile) => {
+        //         if (subFile.endsWith('.ts')) {
+        //             const imports = await import(`../commands/${file}/${subFile}`);
+        //             const command = new imports.default();
+        //             commands.push(command);
+        //         }
+        //     });
+        //     await Promise.all(subFilePromises);
+        // }
     });
 
     await Promise.all(importPromises);
@@ -225,6 +267,7 @@ export abstract class Modal {
     abstract name(): string;
     abstract build(args?: string[]): Promise<ModalBuilder>;
     abstract id(): string;
+    abstract permissions(): CommandPermissions;
 }
 
 
@@ -307,12 +350,13 @@ export class Bot {
                 } else {
                     interaction.reply({ content: "Menu not found", ephemeral: true });
                 }
-            }  else if (interaction.isButton()) {
+            } else if (interaction.isButton()) {
                 const button: Undefinable<Button> = this.buttons.find((button) => button.id().startsWith(interaction.customId.split("-")[0]!));
                 if (button) {
+
                         if (this.cooldowns.has(interaction.user.id)) {
                             const cooldown = this.cooldowns.get(interaction.user.id);
-                            if (cooldown!.time > Date.now()) {
+                            if (cooldown && cooldown!.time > Date.now() && cooldown!.command === button.id()) {
                                 //const remainingTime = Math.ceil((cooldown!.time - Date.now()) / 1000);
                                 const remainingTime = ((cooldown!.time - Date.now()) / 1000).toFixed(1);
                                 interaction.reply({
@@ -322,6 +366,7 @@ export class Bot {
                                 return;
                             }
                         }
+
                     if (button.permissions().adminRole) {
                         const roles = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id)).roles.cache;
                         if (!roles.some(role => this.adminRoles.get(interaction.guildId!)?.includes(role.id))) {
@@ -341,6 +386,7 @@ export class Bot {
                         time: Date.now() + cooldownTime,
                         command: interaction.customId.split("-")[0]!,
                     };
+
                     this.cooldowns.set(interaction.user.id, cooldown);
 
                     setTimeout(() => {
@@ -353,6 +399,22 @@ export class Bot {
                 const modal: Undefinable<Modal> = this.modals.find((modal) => modal.id() === interaction.customId);
 
                 if (modal) {
+                    if (modal.permissions().adminRole) {
+                        const roles = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id)).roles.cache;
+                        if (!roles.some(role => this.adminRoles.get(interaction.guildId!)?.includes(role.id))) {
+                            if (modal.permissions().adminPermissionBypass) {
+                                let member = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id));
+                                if (!member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                                    interaction.reply({ content: "This modal is restricted to admin users, or users with admin permission.", ephemeral: true });
+                                    return;
+                                }
+                            } else {
+                                interaction.reply({ content: "This modal is restricted to admin users.", ephemeral: true });
+                                return;
+                            }
+                        }
+                    }
+
                     modal
                         .run(interaction, this)
                         .catch((error) => {
@@ -360,8 +422,9 @@ export class Bot {
                             interaction.reply("An error occurred while executing the modal.");
                         });
                 } else {
-                    interaction.reply("Modal not found");
+                    interaction.reply({ content: "Modal not found", ephemeral: true });
                 }
+
             }
         });
 
@@ -398,6 +461,6 @@ export class Bot {
     ctxmenus: ContextMenu[] = [];
     buttons: Button[] = [];
     modals: Modal[] = [];
-    adminRoles: Map<string, string[]> = new Map(); // guild id, role ids
+    adminRoles: Map<string, string[]> = new Map();
     cooldowns: Map<string, { command: string, time: number }> = new Map();
 }
