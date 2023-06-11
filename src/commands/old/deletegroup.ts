@@ -1,10 +1,10 @@
-import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
+import {Command, CommandOption, Bot, CommandPermissions} from "../../classes/Bot";
 import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
 } from "discord.js";
-import DB from "../classes/DB";
-import Utils from "../classes/Utils";
+import DB from "../../classes/DB";
+import Utils from "../../classes/Utils";
 
 
 export default class extends Command {

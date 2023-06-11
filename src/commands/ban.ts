@@ -75,18 +75,20 @@ export default class extends Command {
     }
 
     override options(): CommandOption[] {
-        return [{
-            name: "user",
-            description: "The user to ban",
-            type: ApplicationCommandOptionType.User,
-            required: true
-        },
-        {
-            name: "ephemeral",
-            description: "Whether the response should be ephemeral or not.",
-            type: ApplicationCommandOptionType.Boolean,
-            required: false
-        }];
+        return [
+            {
+                name: "user",
+                description: "The user to ban",
+                type: ApplicationCommandOptionType.User,
+                required: true
+            },
+            {
+                name: "ephemeral",
+                description: "Whether the response should be ephemeral or not.",
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+            }
+        ];
     }
 
     override permissions(): CommandPermissions {

@@ -1,26 +1,26 @@
-import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
+import {Command, CommandOption, Bot, CommandPermissions} from "../../classes/Bot";
 import {
     ApplicationCommandOptionType,
-    ChatInputCommandInteraction,
+    ChatInputCommandInteraction
 } from "discord.js";
-import DB from "../classes/DB";
-import Utils from "../classes/Utils";
+import DB from "../../classes/DB";
+import Utils from "../../classes/Utils";
 
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
         await interaction.deferReply({ephemeral: true});
-        let domain = interaction.options.getString("link")!;
         try {
-            await DB.createDomain(interaction.guildId!, interaction.user.id, interaction.options.getString("link")!, interaction.options.getString("group")!);
+            await DB.deleteDomain(interaction.guildId!, interaction.options.getString("link")!, interaction.options.getString("group")!);
         } catch (e) {
-            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to add the link`, description: e!.toString() }) ] });
+            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to remove the link`, description: e!.toString() }) ] });
             return;
         }
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Added ${domain} to group \`${interaction.options.getString("group")}\`.`}) ]});
+
+        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Removed ${interaction.options.getString("link")!} from group \`${interaction.options.getString("group")}\`.`}) ]});
 
         await Utils.sendWebhook(interaction.guildId!, 2, [
             Utils.getEmbed(0x814fff, {
-                title: `Link Added`,
+                title: `Link Removed`,
                 fields: [
                     {
                         name: "Link",
@@ -37,38 +37,37 @@ export default class extends Command {
                 ]
             })
         ])
-
     }
 
     override name(): string {
-        return "addlink";
+        return "deletelink";
     }
 
     override description(): string {
-        return "Add a link to the bot";
+        return "Delete a link from the bot";
     }
 
     override options(): CommandOption[] {
         return [
-        {
-            name: "group",
-            description: "The group to add the domain to",
-            type: ApplicationCommandOptionType.String,
-            required: true
-        }, {
-            name: "link",
-            description: "The link to add",
-            type: ApplicationCommandOptionType.String,
-            required: true
-        }
+            {
+                name: "group",
+                description: "The group to delete from",
+                type: ApplicationCommandOptionType.String,
+                required: true
+            },
+            {
+                name: "link",
+                description: "The link to delete",
+                type: ApplicationCommandOptionType.String,
+                required: true
+            }
         ]
     }
 
     override permissions(): CommandPermissions {
         return {
             dmUsable: false,
-            adminRole: true
+            adminRole: true,
         }
     }
-
 }

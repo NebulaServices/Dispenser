@@ -1,6 +1,6 @@
 import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
 import {
-    ActionRowBuilder,
+    ActionRowBuilder, ApplicationCommandOptionType,
     ButtonBuilder,
     ChatInputCommandInteraction
 } from "discord.js";
@@ -12,7 +12,13 @@ export default class extends Command {
             embeds: [
                 {
                     title: "Configuration Panel",
-                    description: "Configure the bot using the buttons below."
+                    description: "This is the admin configuration panel.\nYou can configure the bot using the buttons below.",
+                    fields: [
+                        {
+                            name: "Help",
+                            value: "Configure the webhook used to send messages to the channel."
+                        }
+                    ]
                 }
             ],
             components: [
@@ -31,7 +37,14 @@ export default class extends Command {
     }
 
     override options(): CommandOption[] {
-        return [];
+        return [
+            {
+                name: "ephemeral",
+                description: "Whether or not the message should be ephemeral.",
+                type: ApplicationCommandOptionType.Boolean,
+                required: false
+            }
+        ];
     }
 
     override permissions(): CommandPermissions {
