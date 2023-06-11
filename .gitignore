@@ -8,3 +8,7 @@ node_modules
 /src/buttons/UniversalNoButton.ts
 /src/commands/say.ts
 /src/commands/eval.ts
+/src/modals/EvalModal.ts
+
+# build
+/dist
