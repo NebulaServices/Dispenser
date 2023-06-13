@@ -1,6 +1,5 @@
 import {EmbedBuilder, WebhookClient} from "discord.js";
 import {Bot} from "./Bot";
-import DB from "./DB";
 
 export default class Utils {
     static EmbedType = {
@@ -53,7 +52,8 @@ export default class Utils {
         Logs: 2
     }
     static async sendWebhook(guildId: string, type: number, embeds: [EmbedBuilder], content?: string): Promise<void> {
-        let urls = await DB.getWebhookUrls(guildId)
+        let urls = await Bot.getWebhookUrls(guildId);
+
         switch (type) {
             case 1: {
                 if (!urls.reports) return;
