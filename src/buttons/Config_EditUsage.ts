@@ -10,7 +10,7 @@ export default class extends Button {
     }
 
     override id(): string {
-        return "btnconfigeditusagebtn";
+        return "btnconfigeditusage";
     }
 
     override async run (interaction: ButtonInteraction, bot: Bot): Promise<void> {

@@ -32,7 +32,7 @@ export default class extends Command {
 
                 let msg = await interaction.channel!.send({
                     embeds: [
-                        Utils.getEmbed(0x814fff, {
+                        Utils.getEmbed(Utils.EmbedType.Purple, {
                             title: "Dispenser",
                             description: "Click the buttons below to dispense items.",
                         }),
@@ -46,8 +46,8 @@ export default class extends Command {
                     content: `Panel Created! \[[Link](\<${msg.url}\>)\]${rows.length === 0 ? "\nSince there are no buttons on the panel, configuration is required. Run /config for more information." : ""}`,
                 })
 
-                await Utils.sendWebhook(interaction.guildId!, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Panel Created`,
                         fields: [
                             {
@@ -96,7 +96,7 @@ export default class extends Command {
 
                 let m = await msg.edit({
                     embeds: [
-                        Utils.getEmbed(0x814fff, {
+                        Utils.getEmbed(Utils.EmbedType.Purple, {
                             title: "Dispenser",
                             description: "Click the buttons below to dispense items.",
                         }),
@@ -108,8 +108,8 @@ export default class extends Command {
                     content: `Panel updated! \[[Link](\<${msg.url}\>)\]${rows.length === 0 ? "\nSince there are no buttons on the panel, configuration is required. Run /config for more information." : ""}`
                 })
 
-                await Utils.sendWebhook(interaction.guildId!, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Panel Updated`,
                         fields: [
                             {

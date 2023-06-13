@@ -14,28 +14,28 @@ export default class extends Command {
         switch (interaction.options.getSubcommand()) {
             case "add": {
                 if (!interaction.options.getInteger("limit") && !interaction.options.getBoolean("admin")) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to add role`, description: `Provide 1: AdminRole or SpecialLimit` }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to add role`, description: `Provide 1: AdminRole or SpecialLimit` }) ] });
                     return;
                 }
 
                 if (interaction.options.getInteger("limit")! && interaction.options.getInteger("limit")! < 1 || interaction.options.getInteger("limit")! > 99) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to add role`, description: `Limit must be between 1 and 99.` }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to add role`, description: `Limit must be between 1 and 99.` }) ] });
                     return;
                 }
 
                 try {
                     await DB.createRole(interaction.guildId!, interaction.options.getRole("role")!.id, interaction.options.getInteger("limit") as number, interaction.options.getBoolean("admin") as boolean)
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to add role`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to add role`, description: e!.toString() }) ] });
                     return;
                 }
 
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Added role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Added role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
 
                 await bot.setAdminRoles();
 
                 await Utils.sendWebhook(interaction.guild!.id, 2, [
-                    Utils.getEmbed(0x814fff, {
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Role Added`,
                         fields: [
                             {
@@ -63,15 +63,15 @@ export default class extends Command {
                 try {
                     await DB.removeRole(interaction.guildId!, interaction.options.getRole("role")!.id)
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to remove role`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to remove role`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Removed role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Removed role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
 
                 await bot.setAdminRoles();
 
                 await Utils.sendWebhook(interaction.guild!.id, 2, [
-                    Utils.getEmbed(0x814fff, {
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Role Removed`,
                         fields: [
                             {
@@ -89,28 +89,28 @@ export default class extends Command {
 
             case "edit": {
                 if (!interaction.options.getInteger("limit") && !interaction.options.getBoolean("admin")) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to edit role`, description: `Provide 1 to edit: AdminRole or SpecialLimit` }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to edit role`, description: `Provide 1 to edit: AdminRole or SpecialLimit` }) ] });
                     return;
                 }
 
                 if (interaction.options.getInteger("limit")! && interaction.options.getInteger("limit")! < 1 || interaction.options.getInteger("limit")! > 99) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to edit role`, description: `Limit must be between 1 and 99.` }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to edit role`, description: `Limit must be between 1 and 99.` }) ] });
                     return;
                 }
 
                 try {
                     await DB.editRole(interaction.guildId!, interaction.options.getRole("role")!.id, interaction.options.getInteger("limit") as number, interaction.options.getBoolean("admin") as boolean)
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to edit role`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to edit role`, description: e!.toString() }) ] });
                     return;
                 }
 
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Edited role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Edited role <@&${interaction.options.getRole("role")!.id}>.`}) ]});
 
                 await bot.setAdminRoles();
 
                 await Utils.sendWebhook(interaction.guild!.id, 2, [
-                    Utils.getEmbed(0x814fff, {
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Role Edited`,
                         fields: [
                             {
@@ -138,7 +138,7 @@ export default class extends Command {
                 try {
                     await interaction.editReply({
                         embeds: [
-                            Utils.getEmbed(0x814fff, {
+                            Utils.getEmbed(Utils.EmbedType.Purple, {
                                 title: "All Roles",
                                 description: (await DB.getAll(interaction.guildId!, "roles")).map((r: any) => {
                                     return `> <@&${r.roleId}>\n${r.specialLimit ? `> Special Limit: ${r.specialLimit}\n` : ""} ${r.adminRole ? "> :lock_with_ink_pen: Admin role\n" : ""}`
@@ -150,7 +150,7 @@ export default class extends Command {
                     console.log(e);
                     await interaction.editReply({
                         embeds: [
-                            Utils.getEmbed(0xff0000, {
+                            Utils.getEmbed(Utils.EmbedType.Red, {
                                 title: `Failed to list roles!`,
                                 description: e!.toString()
                             })

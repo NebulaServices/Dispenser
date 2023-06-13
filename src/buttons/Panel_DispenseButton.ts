@@ -62,14 +62,14 @@ export default class extends Button {
             console.log(e);
             await interaction.editReply({
                 embeds: [
-                    Utils.getEmbed(0xff0000, {
+                    Utils.getEmbed(Utils.EmbedType.Red, {
                         title: "I couldn't provide you with a domain.",
                         description: "Sorry, I couldn't get your link due to an internal error. If this happens repeatedly, we encourage you to make a ticket."
                     })
                 ]
             })
-            await Utils.sendWebhook(interaction.guild!.id, 2, [
-                Utils.getEmbed(0xff0000, {
+            await Utils.sendWebhook(interaction.guild!.id, Utils.WebhookType.Logs, [
+                Utils.getEmbed(Utils.EmbedType.Red, {
                     title: ":no_entry: Domain dispense failed due to exception",
                     fields: [
                         {
@@ -93,14 +93,14 @@ export default class extends Button {
             case "error": {
                 await interaction.editReply({
                     embeds: [
-                        Utils.getEmbed(0xff0000, {
+                        Utils.getEmbed(Utils.EmbedType.Red, {
                             title: "I couldn't provide you with a link",
                             description: response.userText
                         })
                     ]
                 })
-                await Utils.sendWebhook(interaction.guild!.id, 2, [
-                    Utils.getEmbed(0xff0000, {
+                await Utils.sendWebhook(interaction.guild!.id, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Red, {
                         title: "Domain dispense failed",
                         fields: [
                             {
@@ -125,7 +125,7 @@ export default class extends Button {
                     try {
                         m = await interaction.user.send({
                             embeds: [
-                                Utils.getEmbed(0x7f5af0, {
+                                Utils.getEmbed(Utils.EmbedType.Coffee, {
                                     title: "Proxy Request",
                                     description: `Enjoy your site!\n` + response.domain,
                                     fields: [
@@ -151,7 +151,7 @@ export default class extends Button {
                         return;
                     }
                     await DB.setUsed(interaction.guild!.id, interaction.user.id, response.domainClean, response.usageCount);
-                    await Utils.sendWebhook(interaction.guild!.id, 2, [
+                    await Utils.sendWebhook(interaction.guild!.id, Utils.WebhookType.Logs, [
                         Utils.getEmbed(0x00ff00, {
                             title: "Domain Dispensed",
                             fields: [
@@ -183,7 +183,7 @@ export default class extends Button {
                     console.log(e);
                     await interaction.editReply({
                         embeds: [
-                            Utils.getEmbed(0xff0000, {
+                            Utils.getEmbed(Utils.EmbedType.Red, {
                                 title: "I couldn't provide you with a link",
                                 description: response.userText,
                             })

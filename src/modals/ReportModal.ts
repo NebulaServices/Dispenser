@@ -17,7 +17,7 @@ export default class extends Modal {
         if (usr.banned) {
             await interaction.editReply({
                 embeds: [
-                    Utils.getEmbed(0xff0000, {
+                    Utils.getEmbed(Utils.EmbedType.Red, {
                         title: "Unable to submit report",
                         description: "You are banned."
                     })
@@ -26,8 +26,8 @@ export default class extends Modal {
             return;
         }
         try {
-            await Utils.sendWebhook(interaction.guildId!, 1, [
-                Utils.getEmbed(0xff0000, {
+            await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Reports, [
+                Utils.getEmbed(Utils.EmbedType.Red, {
                     title: "New Report",
                     fields: [
                         {
@@ -56,7 +56,7 @@ export default class extends Modal {
         } catch (e) {
             await interaction.editReply({
                 embeds: [
-                    Utils.getEmbed(0xff0000, {
+                    Utils.getEmbed(Utils.EmbedType.Red, {
                         title: "Failed to send report",
                     })
                 ]
@@ -66,7 +66,7 @@ export default class extends Modal {
 
         await interaction.editReply({
             embeds: [
-                Utils.getEmbed(0x814fff, {
+                Utils.getEmbed(Utils.EmbedType.Purple, {
                     title: "Success",
                     description: "Your report has been sent!"
                 })

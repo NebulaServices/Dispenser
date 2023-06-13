@@ -77,6 +77,31 @@ export default class DB {
         }
     }
 
+    static async getAllWebhookUrlsAsMap(): Promise<Map<string, {reports: string | null, logs: string | null}>> {
+        let s = await prisma.server.findMany({
+            select: {
+                serverSettings: {
+                    select: {
+                        reportsWebhookUrl: true,
+                        logsWebhookUrl: true
+                    }
+                },
+                serverId: true
+            }
+        })
+        if (!s) return new Map();
+        let map = new Map();
+
+        for (let server of s) {
+            map.set(server.serverId, {
+                reports: server.serverSettings?.reportsWebhookUrl! ?? null,
+                logs: server.serverSettings?.logsWebhookUrl! ?? null
+            })
+        }
+
+        return map;
+    }
+
      static async getDomain(serverId: string, userId: string, groupId: string, roleIds: string[]): Promise<any> {
         if (!groupId) return {
                 type: "error",

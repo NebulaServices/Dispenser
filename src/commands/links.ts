@@ -16,13 +16,13 @@ export default class extends Command {
                 try {
                     await DB.createDomain(interaction.guildId!, interaction.user.id, interaction.options.getString("link")!, interaction.options.getString("group")!);
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to add the link`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to add the link`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Added ${domain} to group \`${interaction.options.getString("group")}\`.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Added ${domain} to group \`${interaction.options.getString("group")}\`.`}) ]});
 
-                await Utils.sendWebhook(interaction.guildId!, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Link Added`,
                         fields: [
                             {
@@ -46,14 +46,14 @@ export default class extends Command {
                 try {
                     await DB.deleteDomain(interaction.guildId!, interaction.options.getString("link")!, interaction.options.getString("group")!);
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to remove the link`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to remove the link`, description: e!.toString() }) ] });
                     return;
                 }
 
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Removed ${interaction.options.getString("link")!} from group \`${interaction.options.getString("group")}\`.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Removed ${interaction.options.getString("link")!} from group \`${interaction.options.getString("group")}\`.`}) ]});
 
-                await Utils.sendWebhook(interaction.guildId!, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Link Removed`,
                         fields: [
                             {
@@ -77,7 +77,7 @@ export default class extends Command {
                 try {
                     await interaction.editReply({
                         embeds: [
-                            Utils.getEmbed(0x814fff, {
+                            Utils.getEmbed(Utils.EmbedType.Purple, {
                                 title: "All Links",
                                 description: (await DB.getAll(interaction.guildId!, "groups")).map((g: any) => {
                                     return `**${g.groupId}**${g.requiredRoleId ? ` - Requires <@&${g.requiredRoleId}>` : ``}\n${g.domains.length >= 1 ? g.domains.map((l: any) => {
@@ -91,7 +91,7 @@ export default class extends Command {
                     console.log(e);
                     await interaction.editReply({
                         embeds: [
-                            Utils.getEmbed(0xff0000, {
+                            Utils.getEmbed(Utils.EmbedType.Red, {
                                 title: `Failed to list links!`,
                                 description: e!.toString()
                             })

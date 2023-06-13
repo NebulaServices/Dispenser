@@ -1,4 +1,4 @@
-import {Modal, Bot, CommandPermissions} from "../classes/Bot";
+import { Modal, Bot, CommandPermissions } from "../classes/Bot";
 import {
     ActionRowBuilder,
     ModalActionRowComponentBuilder,
@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import DB from "../classes/DB";
 import Utils from "../classes/Utils";
+
 
 export default class extends Modal {
     override async run(interaction: ModalSubmitInteraction, bot: Bot): Promise<void> {
@@ -39,8 +40,8 @@ export default class extends Modal {
             content: "Success! Edited webhook URLs for this guild."
         });
 
-        await Utils.sendWebhook(interaction.guild!.id, 2, [
-            Utils.getEmbed(0x814fff, {
+        await Utils.sendWebhook(interaction.guild!.id, Utils.WebhookType.Logs, [
+            Utils.getEmbed(Utils.EmbedType.Purple, {
                 title: `Webhook URLs Edited`,
                 fields: [
                     {
@@ -50,6 +51,8 @@ export default class extends Modal {
                 ]
             })
         ])
+
+        await Bot.setWebhookUrls();
     }
 
     override name(): string {
@@ -62,11 +65,9 @@ export default class extends Modal {
 
     override async build(args: string[]): Promise<ModalBuilder> {
         let server;
-        try {
-            if (args[0]) {
-                server = await DB.getWebhookUrls(args[0]);
-            }
-        } catch (e) {}
+        if (args[0]) {
+            server = await Bot.getWebhookUrls(args[0]);
+        }
         return new ModalBuilder()
             .setCustomId(this.id())
             .setTitle(this.name())
@@ -77,7 +78,7 @@ export default class extends Modal {
                             .setCustomId('reportWebhookInput')
                             .setLabel('Reports Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
-                            .setValue(server?.reports || '')
+                            .setValue(server?.reports ?? '')
                             .setStyle(TextInputStyle.Short)
                             .setRequired(false)
                     ),
@@ -87,7 +88,7 @@ export default class extends Modal {
                             .setCustomId('logWebhookInput')
                             .setLabel('Logging Webhook URL')
                             .setPlaceholder('https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz')
-                            .setValue(server?.logs || '')
+                            .setValue(server?.logs ?? '')
                             .setStyle(TextInputStyle.Short)
                             .setRequired(false)
                     )

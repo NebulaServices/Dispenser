@@ -16,12 +16,12 @@ export default class extends Command {
                 try {
                     await DB.resetUserUsage(user.user!.id, interaction.guild!.id, interaction.options.getBoolean("dupes") ?? false);
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to reset user`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to reset user`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success!`, description: `Reset user ${interaction.options.getUser("user")?.tag} \nI reset their usage count${interaction.options.getBoolean("dupes") ? ", and their dupes." : " only."}`}) ]});
-                await Utils.sendWebhook(interaction.guild!.id, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success!`, description: `Reset user ${interaction.options.getUser("user")?.tag} \nI reset their usage count${interaction.options.getBoolean("dupes") ? ", and their dupes." : " only."}`}) ]});
+                await Utils.sendWebhook(interaction.guild!.id, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `User Reset`,
                         fields: [
                             {
@@ -45,14 +45,14 @@ export default class extends Command {
                 try {
                     await DB.resetAll(interaction.guild!.id, interaction.options.getBoolean("dupes") ?? false);
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to reset all users`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to reset all users`, description: e!.toString() }) ] });
                     return;
                 }
 
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success! Reset all users.`, description: `I reset their usage count${interaction.options.getBoolean("dupes") ? ", and reset their dupes." : " only."}`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success! Reset all users.`, description: `I reset their usage count${interaction.options.getBoolean("dupes") ? ", and reset their dupes." : " only."}`}) ]});
 
-                await Utils.sendWebhook(interaction.guild!.id, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guild!.id, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `All Users Reset`,
                         fields: [
                             {

@@ -272,6 +272,7 @@ export abstract class Modal {
 
 
 export class Bot {
+
     constructor(token: string, intents: ClientOptions, status: PresenceStatusData, activity: ActivityOptions) {
         this.client = new Client(intents);
         Bot.client = this.client;
@@ -433,11 +434,20 @@ export class Bot {
         this.client.on("ready", async () => {
             await this.client.user?.setPresence({ status: status, activities: [activity] });
             await this.setAdminRoles();
+            await Bot.setWebhookUrls();
         })
     }
 
     public async setAdminRoles(): Promise<void> {
         this.adminRoles = await DB.getAdminRoles();
+    }
+
+    static async setWebhookUrls(): Promise<void> {
+        this.webhookUrls = await DB.getAllWebhookUrlsAsMap();
+    }
+
+    static async getWebhookUrls(guildId: string): Promise<{ reports: string | null, logs: string | null}> {
+        return this.webhookUrls.get(guildId) ?? { reports: null, logs: null };
     }
 
     public async initCommands(): Promise<void> {
@@ -462,5 +472,8 @@ export class Bot {
     buttons: Button[] = [];
     modals: Modal[] = [];
     adminRoles: Map<string, string[]> = new Map();
+    private static webhookUrls: Map<string, { reports: string | null, logs: string | null}> = new Map();
     cooldowns: Map<string, { command: string, time: number }> = new Map();
+
+
 }

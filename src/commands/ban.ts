@@ -12,10 +12,10 @@ export default class extends Command {
         try {
             await DB.banUser(interaction.options.getUser("user")!.id, interaction.guildId!);
         } catch (e) {
-            await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to ban user`, description: e!.toString() }) ] });
+            await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to ban user`, description: e!.toString() }) ] });
 
-            await Utils.sendWebhook(interaction.guildId!, 2, [
-                Utils.getEmbed(0xff0000, {
+            await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                Utils.getEmbed(Utils.EmbedType.Red, {
                     title: `Failed to ban user`,
                     fields: [
                         {
@@ -41,10 +41,10 @@ export default class extends Command {
             return;
         }
 
-        await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success!`, description: `Banned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
+        await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success!`, description: `Banned user <@${interaction.options.getUser("user")?.id}> (${interaction.options.getUser("user")?.tag})`}) ]});
 
-        await Utils.sendWebhook(interaction.guildId!, 2, [
-            Utils.getEmbed(0x814fff, {
+        await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+            Utils.getEmbed(Utils.EmbedType.Purple, {
                 title: `User Banned`,
                 fields: [
                     {

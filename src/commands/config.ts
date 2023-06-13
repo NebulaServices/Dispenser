@@ -4,26 +4,44 @@ import {
     ButtonBuilder,
     ChatInputCommandInteraction
 } from "discord.js";
+import Utils from "../classes/Utils";
 
 export default class extends Command {
     override async run(interaction: ChatInputCommandInteraction, bot: Bot): Promise<void> {
-        await interaction.deferReply();
+        await interaction.deferReply({ ephemeral: interaction.options.getBoolean("ephemeral") ?? true });
         await interaction.editReply({
             embeds: [
-                {
+                Utils.getEmbed(Utils.EmbedType.Coffee, {
                     title: "Configuration Panel",
                     description: "This is the admin configuration panel.\nYou can configure the bot using the buttons below.",
                     fields: [
                         {
-                            name: "Help",
-                            value: "Configure the webhook used to send messages to the channel."
+                            name: "View Information",
+                            value: "[Github](https://github.com/NebulaServices/Dispenser) | [Docs](https://nebulaservices.github.io/Dispenser/) "
+                        },
+                        {
+                            name: "Edit Webhook URLs",
+                            value: "Configure the webhooks used to log actions and send reports.",
+                            inline: true
+                        },
+                        {
+                            name: "Edit Usage",
+                            value: "Configure the default amount of links a user can dispense without a custom role.",
+                            inline: true
                         }
-                    ]
-                }
+                    ],
+                    footer: {
+                        text: "Dispenser is a Nebula Service",
+                        iconURL: "https://cdn.nsmbu.net/dispenser/ndl.png"
+                    }
+                })
             ],
             components: [
                 new ActionRowBuilder<ButtonBuilder>()
-                    .addComponents([await bot.getButton("btnconfigeditwebhook")?.build()!, await bot.getButton("btnconfigeditusagebtn")?.build()!])
+                    .addComponents([
+                        await bot.getButton("btnconfigeditwebhook")?.build()!,
+                        await bot.getButton("btnconfigeditusage")?.build()!
+                    ])
             ]
         });
     }

@@ -1,18 +1,31 @@
-import { EmbedBuilder, WebhookClient} from "discord.js";
+import {EmbedBuilder, WebhookClient} from "discord.js";
 import {Bot} from "./Bot";
 import DB from "./DB";
 
-
 export default class Utils {
-    static getEmbed(color: number, data: { title?: string, description?: string, imageURL?: string, author?: { name: string, iconURL: string }, fields?: { name: string, value: string, inline?: boolean }[] }): EmbedBuilder {
+    static EmbedType = {
+        Red: 0xff0000,
+        Purple: 0x814fff,
+        Coffee: 0x6f4e37,
+        Random: Math.floor(Math.random() * 16777215)
+    }
+
+    static getEmbed(color: number, data: { title?: string, description?: string, imageURL?: string, author?: { name: string, iconURL: string }, fields?: { name: string, value: string, inline?: boolean }[], footer?: { text: string, iconURL: string } }): EmbedBuilder {
         let embed = new EmbedBuilder()
 
         if (data.title) embed.setTitle(data.title);
         if (data.description) embed.setDescription(data.description);
-        if (Bot.client.user && Bot.client) {
+        if (!data.footer) {
+            if (Bot.client.user && Bot.client) {
+                embed.setFooter({
+                    text: Bot.client.user.username,
+                    iconURL: Bot.client.user.avatarURL()!
+                });
+            }
+        } else {
             embed.setFooter({
-                text: Bot.client.user.username,
-                iconURL: Bot.client.user.avatarURL()!
+                text: data.footer.text,
+                iconURL: data.footer.iconURL
             });
         }
         if (data.imageURL) embed.setImage(data.imageURL);
@@ -35,7 +48,11 @@ export default class Utils {
         return embed;
     }
 
-    static async sendWebhook(guildId: string, type: 1 | 2, embeds: [EmbedBuilder], content?: string): Promise<void> {
+    static WebhookType = {
+        Reports: 1,
+        Logs: 2
+    }
+    static async sendWebhook(guildId: string, type: number, embeds: [EmbedBuilder], content?: string): Promise<void> {
         let urls = await DB.getWebhookUrls(guildId)
         switch (type) {
             case 1: {

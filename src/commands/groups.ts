@@ -33,13 +33,13 @@ export default class extends Command {
                             emoji: interaction.options.getString("emoji")!
                         }, interaction.options.getRole("role")?.id);
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to create group`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to create group`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Created group \`${interaction.options.getString("name")}\`.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Created group \`${interaction.options.getString("name")}\`.`}) ]});
 
-                await Utils.sendWebhook(interaction.guildId!, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Group Created`,
                         fields: [
                             {
@@ -75,13 +75,13 @@ export default class extends Command {
                 try {
                     await DB.deleteGroup(interaction.guild!.id, interaction.options.getString("name")!);
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to delete group`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to delete group`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Deleted group \`${interaction.options.getString("name")}\`.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Deleted group \`${interaction.options.getString("name")}\`.`}) ]});
 
-                await Utils.sendWebhook(interaction.guildId!, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Group Deleted`,
                         fields: [
                             {
@@ -116,13 +116,13 @@ export default class extends Command {
                             emoji: interaction.options.getString("emoji")! ?? undefined
                         }, interaction.options.getRole("role")?.id ?? undefined);
                 } catch (e) {
-                    await interaction.editReply({ embeds: [ Utils.getEmbed(0xff0000, { title: `Failed to edit group`, description: e!.toString() }) ] });
+                    await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to edit group`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(0x814fff, { title: `Success`, description: `Edited group \`${interaction.options.getString("name")}\`.`}) ]});
+                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Edited group \`${interaction.options.getString("name")}\`.`}) ]});
 
-                await Utils.sendWebhook(interaction.guildId!, 2, [
-                    Utils.getEmbed(0x814fff, {
+                await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
+                    Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Group Edited`,
                         fields: [
                             {
