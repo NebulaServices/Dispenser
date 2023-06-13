@@ -2,6 +2,8 @@ import {Command, CommandOption, Bot, CommandPermissions} from "../classes/Bot";
 import {
     ApplicationCommandOptionType,
     ChatInputCommandInteraction,
+    ButtonBuilder,
+    ActionRowBuilder
 } from "discord.js";
 import DB, {ButtonType} from "../classes/DB";
 import Utils from "../classes/Utils";
@@ -31,13 +33,22 @@ export default class extends Command {
                             label: interaction.options.getString("label")!,
                             style: interaction.options.getString("style")! as ButtonType,
                             emoji: interaction.options.getString("emoji")!
-                        }, interaction.options.getRole("role")?.id);
+                        }, interaction.options.getRole("role")?.id
+                    );
                 } catch (e) {
                     await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to create group`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Created group \`${interaction.options.getString("name")}\`.`}) ]});
-
+                await interaction.editReply({
+                    embeds: [
+                        Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Created group \`${interaction.options.getString("name")}\`.\n\nBelow is an example of what the button will look like.`})
+                    ],
+                    components: [
+                        new ActionRowBuilder<ButtonBuilder>().addComponents(
+                            await bot.getButton("panelexampledispensebtn")?.build([interaction.options.getString("label")! ?? undefined, interaction.options.getString("style")! as ButtonType ?? undefined, interaction.options.getString("emoji")! ?? null])!
+                        )
+                    ]
+                });
                 await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
                     Utils.getEmbed(Utils.EmbedType.Purple, {
                         title: `Group Created`,
@@ -108,18 +119,33 @@ export default class extends Command {
                     return;
                 }
 
+                if (!interaction.options.getString("label") && !interaction.options.getString("style") && !interaction.options.getString("emoji") && !interaction.options.getRole("role")) {
+                    await interaction.editReply(`Please provide at least one argument to edit.`);
+                    return;
+                }
+
                 try {
                     await DB.editGroup(interaction.guild!.id, interaction.options.getString("name")!, interaction.user.id,
                         {
                             label: interaction.options.getString("label")! ?? undefined,
                             style: interaction.options.getString("style")! as ButtonType ?? undefined,
                             emoji: interaction.options.getString("emoji")! ?? undefined
-                        }, interaction.options.getRole("role")?.id ?? undefined);
+                        }, interaction.options.getRole("role")?.id ?? undefined
+                    );
                 } catch (e) {
                     await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Red, { title: `Failed to edit group`, description: e!.toString() }) ] });
                     return;
                 }
-                await interaction.editReply({ embeds: [ Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Edited group \`${interaction.options.getString("name")}\`.`}) ]});
+                await interaction.editReply({
+                    embeds: [
+                        Utils.getEmbed(Utils.EmbedType.Purple, { title: `Success`, description: `Edited group \`${interaction.options.getString("name")}\`.`})
+                    ],
+                    //components: [
+                    //    new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    //        await bot.getButton("panelexampledispensebtn")?.build([interaction.options.getString("label")! ?? undefined, interaction.options.getString("style")! as ButtonType ?? undefined, interaction.options.getString("emoji")! ?? undefined])!
+                    //    )
+                    //]
+                });
 
                 await Utils.sendWebhook(interaction.guildId!, Utils.WebhookType.Logs, [
                     Utils.getEmbed(Utils.EmbedType.Purple, {
