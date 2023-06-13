@@ -132,7 +132,8 @@ export default class DB {
                  },
                  domainGroups: {
                      where: {
-                         groupId: groupId
+                         groupId: groupId,
+                         serverId: serverId
                      },
                      select: {
                          domains: true,
@@ -151,6 +152,7 @@ export default class DB {
                  }
              }
          });
+
          if (!server) {
              await this.createServer(serverId);
              return await this.getDomain(serverId, userId, groupId, roleIds);
@@ -159,7 +161,7 @@ export default class DB {
 
          let user = server.users.find((user) => user.userId == userId);
          if (!user) {
-             console.log(`"User doesn't exist, creating user for ${userId} in ${serverId}..."`);
+             console.log(`User doesn't exist, creating user for ${userId} in ${serverId}...`);
              user = await prisma.user.create({
                  data: {
                      userId: userId,
@@ -178,7 +180,7 @@ export default class DB {
 
          if (user.banned) {
              return {
-                 userText: "You are currently banned.",
+                 userText: `You are currently banned, please contact an admin if you would like to appeal.`,
                  systemText: `User is banned.`,
                  type: "error"
              }
@@ -204,7 +206,7 @@ export default class DB {
          if (domainGroup.requiredRoleId) {
              if (!roleIds.includes(domainGroup.requiredRoleId)) {
                  return {
-                     userText: `The role <@&${domainGroup.requiredRoleId}> to dispense from this group.`,
+                     userText: `The role <@&${domainGroup.requiredRoleId}> is required to dispense from this category.`,
                      systemText: `User doesn't have the required role (<@&${domainGroup.requiredRoleId}>)`,
                      type: `error`
                  }
@@ -213,13 +215,11 @@ export default class DB {
 
          if (userUsageCount >= usagePerUser) {
              return {
-                 userText: `You have hit your monthly limit of ${userUsageCount} Dispenses. Wait until next month to get more!`,
-                    systemText: `User has hit their monthly limit of ${userUsageCount} Dispenses.`,
+                 userText: `You have hit your monthly limit of ${usagePerUser} Dispense${usagePerUser === 1 ? '' : 's'}. Please try again next month.`,
+                 systemText: `User has hit their monthly limit of ${usagePerUser} Dispense${usagePerUser === 1 ? '' : 's'}.`,
                  type: `error`
              }
          }
-
-
 
          let domains = domainGroup.domains;
          let domainsFiltered = domains.filter((domain) => {
@@ -230,16 +230,15 @@ export default class DB {
              randomDomain = domainsFiltered[Math.floor(Math.random() * domainsFiltered.length)]!.domainName;
          } catch (e) {
              return {
-                 userText: `Sorry, There are no domains left in this group.`,
-                 systemText: `User has no domains left in group ${groupId}.`,
+                 userText: `Sorry, There are no links left in this category.`,
+                 systemText: `User has no links left in group ${groupId}.`,
                  type: `error`
              }
          }
 
          if (!randomDomain) throw new Error();
 
-
-         let usageLeft = usagePerUser! - (userUsageCount + 1);
+         const usageLeft = usagePerUser! - (userUsageCount + 1);
 
          return {
              domain: randomDomain.startsWith(`https://`) ? randomDomain : `https://${randomDomain}`,
