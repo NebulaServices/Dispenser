@@ -13,20 +13,22 @@ rem icacls C:\Program Files /grant %username%:F /T /Q
 
 rem Step 3
 echo "Downloading and installing dependencies and packages"
-npm install
+call npm install
 
 rem Step 4
-echo "Validating Prisma DB" 
-npm run validate
+echo "Validating Prisma DB"
+call npm run validate
 
 rem Step 5
-echo "generating database" 
-npm run push
+echo "generating database"
+call npm run push
 
 rem Step 6
-echo "Building scripts" 
-npm run build
+rem echo "Building scripts"
+rem npm run build
 
 rem Step 7
-echo "Starting Dispenser" 
-npm run ts
+echo "Starting Dispenser"
+call npm run ts
+
+pause
