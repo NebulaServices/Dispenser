@@ -21,8 +21,7 @@ export default class extends Button {
                 .setStyle(ButtonStyle.Primary)
 
         }
-        if (args.length > 3) {
-        }
+
         let buttonBuilder = new ButtonBuilder()
             .setLabel(args[0]!)
             .setCustomId(this.id())
