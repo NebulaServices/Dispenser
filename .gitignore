@@ -1,4 +1,14 @@
 node_modules
-config.json
-database.sqlite
 .env
+/.idea
+/.vscode
+/.fleet
+
+# dev files
+/src/buttons/UniversalNoButton.ts
+/src/commands/say.ts
+/src/commands/eval.ts
+/src/modals/EvalModal.ts
+
+# build
+/dist
