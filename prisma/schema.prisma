@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model server {
+  serverId       String          @id
+  id             String          @unique @default(uuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  serverSettings serverSettings?
+  domainGroups   domainGroup[]
+  users          user[]
+  roles          role[]
+  @@unique([serverId, id])
+}
+
+model domainGroup {
+  groupId        String    @id @default(uuid())
+  createdAt      DateTime? @default(now())
+  createdBy      String?
+  updatedAt      DateTime? @updatedAt
+  updatedBy      String?
+  server         server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId       String
+  domains        domain[]
+  buttonEmoji    String?
+  buttonLabel    String?
+  buttonType     BUTTON?
+  requiredRoleId String?
+  @@index([serverId, groupId])
+}
+
+model domain {
+  domainName    String
+  id            String      @id @default(uuid())
+  createdAt     DateTime?   @default(now())
+  createdBy     String?
+  updatedAt     DateTime?   @updatedAt
+  updatedBy     String?
+  domainGroup   domainGroup @relation(fields: [domainGroupId], references: [groupId], onDelete: Cascade)
+  domainGroupId String
+  serverId      String
+}
+
+model serverSettings {
+  createdAt         DateTime @default(now())
+  createdBy         String?
+  updatedAt         DateTime @updatedAt
+  server            server   @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId          String   @id @unique
+  logsWebhookUrl    String?
+  logsEnabled       Boolean  @default(false) // Implement later
+  reportsWebhookUrl String?
+  reportsEnabled    Boolean  @default(false) // also implement later
+  usagePerUser      Int      @default(1)
+}
+
+model user {
+  userId      String
+  id          String    @id @default(uuid())
+  createdAt   DateTime? @default(now())
+  createdBy   String?
+  updatedAt   DateTime? @updatedAt
+  server      server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId    String
+  usedDomains String[]
+  usageCount  Int       @default(0)
+  banned      Boolean?  @default(false)
+}
+
+model role {
+  roleId       String    @id @unique
+  createdAt    DateTime? @default(now())
+  createdBy    String?
+  updatedAt    DateTime? @updatedAt
+  server       server    @relation(fields: [serverId], references: [serverId], onDelete: Cascade)
+  serverId     String
+  specialLimit Int?
+  adminRole    Boolean?  @default(false)
+}
+
+enum BUTTON {
+  PRIMARY
+  SECONDARY
+  SUCCESS
+  DANGER
+}
