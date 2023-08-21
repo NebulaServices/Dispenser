@@ -14,7 +14,7 @@ node_modules
 /dist
 
 
-# User generated docker files
-docker-compose.yml
-Dockerfile
+# User generated docker files (Root of the project only)
 /db
+/docker-compose.yml
+/Dockerfile
