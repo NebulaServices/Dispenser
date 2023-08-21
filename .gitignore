@@ -12,3 +12,9 @@ node_modules
 
 # build
 /dist
+
+
+# User generated docker files
+docker-compose.yml
+Dockerfile
+/db
