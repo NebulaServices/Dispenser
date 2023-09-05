@@ -6,19 +6,28 @@ import {
     ApplicationCommandOptionType,
     ButtonBuilder,
     ButtonInteraction,
+    ChannelSelectMenuBuilder,
     ChatInputCommandInteraction,
     Client,
     ClientOptions,
     ContextMenuCommandBuilder,
     ContextMenuCommandType,
+    MentionableSelectMenuBuilder,
     MessageContextMenuCommandInteraction,
     ModalBuilder,
     ModalSubmitInteraction,
     PermissionsBitField,
     PresenceStatusData,
+    RoleSelectMenuBuilder,
     Routes,
-    SlashCommandBuilder, SlashCommandSubcommandBuilder, SlashCommandSubcommandGroupBuilder,
-    UserContextMenuCommandInteraction
+    SelectMenuBuilder,
+    SelectMenuInteraction,
+    SlashCommandBuilder,
+    SlashCommandSubcommandBuilder,
+    SlashCommandSubcommandGroupBuilder,
+    StringSelectMenuBuilder,
+    UserContextMenuCommandInteraction,
+    UserSelectMenuBuilder,
 } from "discord.js";
 import DB from "./DB";
 
@@ -65,8 +74,11 @@ function addOptionsSubGroup (option: CommandOption, cmd: SlashCommandSubcommandG
 }
 
 async function init(): Promise<void> {
+    process.on('uncaughtException' as never, (err: Error) => {
+        console.error('<!!!> UNCAUGHT ERROR \n' + err.stack);
+    });
 
-    const rest = new REST({ version: "10" }).setToken(process.env.TOKEN as never);
+    const rest: REST = new REST({ version: "10" }).setToken(process.env.TOKEN as never);
 
     const commandObjects: Command[] = await getCommands();
     const commands: SlashCommandBuilder[] = [];
@@ -181,8 +193,8 @@ async function getCommands(): Promise<Command[]> {
 async function getMenus(): Promise<ContextMenu[]> {
     let menus: ContextMenu[] = [];
 
-    for (let file of fs.readdirSync("./src/menus/").filter(file => file.endsWith(".ts"))) {
-        let imports = await import(`../menus/${file}`);
+    for (let file of fs.readdirSync("./src/ctxMenus/").filter(file => file.endsWith(".ts"))) {
+        let imports = await import(`../ctxMenus/${file}`);
 
         let menu = new imports.default();
         menus.push(menu);
@@ -212,6 +224,18 @@ async function getModals(): Promise<Modal[]> {
         modals.push(modal);
     }
     return modals;
+}
+
+async function getSelectMenus(): Promise<SelectMenu[]> {
+    let selectMenus: SelectMenu[] = [];
+
+    for (let file of fs.readdirSync("./src/selectMenus/").filter(file => file.endsWith(".ts"))) {
+        let imports = await import(`../selectMenus/${file}`);
+
+        let selectMenu = new imports.default();
+        selectMenus.push(selectMenu);
+    }
+    return selectMenus;
 }
 
 export interface CommandOption {
@@ -270,6 +294,13 @@ export abstract class Modal {
     abstract permissions(): CommandPermissions;
 }
 
+export abstract class SelectMenu {
+    abstract run(interaction: SelectMenuInteraction, bot: Bot): Promise<void>;
+    abstract name(): string;
+    abstract build(args?: string[]): Promise<SelectMenuBuilder | StringSelectMenuBuilder | MentionableSelectMenuBuilder | RoleSelectMenuBuilder | UserSelectMenuBuilder | ChannelSelectMenuBuilder>;
+    abstract id(): string;
+    abstract permissions(): CommandPermissions;
+}
 
 export class Bot {
 
@@ -425,7 +456,26 @@ export class Bot {
                 } else {
                     interaction.reply({ content: "Modal not found", ephemeral: true });
                 }
+            } else if (interaction.isSelectMenu()) {
+                const selectMenu: Undefinable<SelectMenu> = this.selectMenus.find((selectMenu) => selectMenu.id() === interaction.customId);
 
+                if (selectMenu) {
+                    if (selectMenu.permissions().adminRole) {
+                        const roles = await (await (await this.client.guilds.fetch(interaction.guildId!)).members.fetch(interaction.user.id)).roles.cache;
+                        if (!roles.some(role => this.adminRoles.get(interaction.guildId!)?.includes(role.id))) {
+                            interaction.reply({ content: "This action is restricted to admin users.", ephemeral: true });
+                            return;
+                        }
+                    }
+                    selectMenu
+                        .run(interaction, this)
+                        .catch((error) => {
+                            console.error("Error executing select menu:", error);
+                            interaction.reply("An error occurred while executing the select menu.");
+                        });
+                } else {
+                    interaction.reply({ content: "Select menu not found", ephemeral: true });
+                }
             }
         });
 
@@ -455,6 +505,7 @@ export class Bot {
         this.ctxmenus = await getMenus();
         this.buttons = await getButtons();
         this.modals = await getModals();
+        this.selectMenus = await getSelectMenus();
     }
 
     getButton (id: string, args?: string[]): Undefinable<Button> {
@@ -465,15 +516,19 @@ export class Bot {
         return this.modals.find(modal => modal.id() === id);
     }
 
+    getSelectMenu (id: string): Undefinable<SelectMenu> {
+        return this.selectMenus.find(selectMenu => selectMenu.id() === id);
+    }
+
     client: Client<true>;
     static client: Client;
     commands: Command[] = [];
     ctxmenus: ContextMenu[] = [];
     buttons: Button[] = [];
     modals: Modal[] = [];
+    selectMenus: SelectMenu[] = [];
     adminRoles: Map<string, string[]> = new Map();
     private static webhookUrls: Map<string, { reports: string | null, logs: string | null}> = new Map();
     cooldowns: Map<string, { command: string, time: number }> = new Map();
-
 
 }
