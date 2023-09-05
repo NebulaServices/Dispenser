@@ -639,7 +639,7 @@ export default class DB {
     }
 
     static async getUser (userId: string, serverId: string): Promise<any> {
-        return prisma.user.findFirst({
+        let user = await prisma.user.findFirst({
             where: {
                 userId: userId,
                 serverId: serverId
@@ -652,6 +652,20 @@ export default class DB {
                 banned: true
             }
         });
+
+
+
+        if (!user) {
+            await prisma.user.create({
+                data: {
+                    userId: userId,
+                    serverId: serverId,
+                    usageCount: 0,
+                }
+            });
+
+            return this.getUser(userId, serverId);
+        } else return user;
     }
 
     static async getAll (serverId: string, type: 'links' | 'groups' | 'roles'): Promise<any> {
