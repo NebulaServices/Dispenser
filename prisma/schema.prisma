@@ -16,7 +16,6 @@ model server {
   domainGroups   domainGroup[]
   users          user[]
   roles          role[]
-
   @@unique([serverId, id])
 }
 
@@ -33,7 +32,6 @@ model domainGroup {
   buttonLabel    String?
   buttonType     BUTTON?
   requiredRoleId String?
-
   @@index([serverId, groupId])
 }
 
