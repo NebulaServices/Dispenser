@@ -11,11 +11,6 @@ git clone https://github.com/nebulaServices/dispenser.git
 cd dispenser
 ```
 
-- Copy the everything from the `docker` directory to the root of the project
-```bash
-cp -r docker/* .
-```
-
 - Edit the docker-compose.yml file and change the env vars 
   - TOKEN
   - CLIENT_ID
