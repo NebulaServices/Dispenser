@@ -12,3 +12,7 @@ node_modules
 
 # build
 /dist
+
+
+# User generated docker files (Root of the project only)
+/db
